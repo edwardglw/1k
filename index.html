@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>firstrun</title>
   <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <script>
+    (function() {
+      var p = window.location.search.match(/[?&]p=([^&]*)/);
+      if (p) history.replaceState(null, '', '/1k/' + decodeURIComponent(p[1]) + (window.location.search.match(/[?&]q=([^&]*)/) || ['',''])[1].replace(/~and~/g,'&'));
+    })();
+  </script>
 </head>
   <body>
     <div id="root"></div>
