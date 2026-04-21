@@ -31,7 +31,7 @@ function AppRoutes() {
 export default function App() {
   return (
     <UserProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/1k/">
         <AppRoutes />
       </BrowserRouter>
     </UserProvider>
