@@ -12,15 +12,15 @@ export default function ScreenAboutYou({ data, setData }) {
 
   return (
     <div>
-      <div style={{ fontSize: 22, fontWeight: 900, color: T.color.charcoal, fontFamily: T.font.display, lineHeight: 1.2, marginBottom: 6 }}>
+      <div style={{ fontSize: 22, fontWeight: 900, color: "var(--title-col)", fontFamily: T.font.display, lineHeight: 1.2, marginBottom: 6 }}>
         A bit about you
       </div>
-      <div style={{ fontSize: 14, color: T.color.charcoal, marginBottom: 24, lineHeight: 1.5, opacity: 0.75 }}>
+      <div style={{ fontSize: 14, color: "var(--sub-col)", marginBottom: 24, lineHeight: 1.5 }}>
         We use this to calibrate your programme and your calorie allowance.
       </div>
 
       <div style={{ marginBottom: 14 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: T.color.charcoalMuted, marginBottom: 6 }}>What should we call you?</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--sub-col)", marginBottom: 6 }}>What should we call you?</div>
         <input
           type="text"
           value={data.displayName || ""}

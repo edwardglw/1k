@@ -8,10 +8,10 @@ export default function ScreenInjuries({ data, setData }) {
 
   return (
     <div>
-      <div style={{ fontSize: 22, fontWeight: 900, color: T.color.charcoal, fontFamily: T.font.display, lineHeight: 1.2, marginBottom: 6 }}>
+      <div style={{ fontSize: 22, fontWeight: 900, color: "var(--title-col)", fontFamily: T.font.display, lineHeight: 1.2, marginBottom: 6 }}>
         Anything we should know?
       </div>
-      <div style={{ fontSize: 14, color: T.color.charcoal, marginBottom: 24, lineHeight: 1.5, opacity: 0.75 }}>
+      <div style={{ fontSize: 14, color: "var(--sub-col)", marginBottom: 24, lineHeight: 1.5 }}>
         We'll adjust your early sessions if you need a gentler start.
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
@@ -34,7 +34,7 @@ export default function ScreenInjuries({ data, setData }) {
       </div>
       <HighlightMessage tone="sky"
         title="A note on medical advice"
-        body="FirstRun is not a substitute for medical advice. If in doubt, speak to your GP before starting." />
+        body="1RUN.UK is not a substitute for medical advice. If in doubt, speak to your GP before starting." />
     </div>
   );
 }

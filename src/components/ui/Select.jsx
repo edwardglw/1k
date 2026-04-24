@@ -4,7 +4,7 @@ import Icon from "./Icon";
 export default function Select({ label, value, onChange, options, placeholder }) {
   return (
     <div style={{ flex: 1, minWidth: 0 }}>
-      {label && <div style={{ fontSize: 12, fontWeight: 700, color: T.color.charcoalMuted, marginBottom: 6 }}>{label}</div>}
+      {label && <div style={{ fontSize: 12, fontWeight: 700, color: `var(--sub-col, ${T.color.charcoalMuted})`, marginBottom: 6 }}>{label}</div>}
       <div style={{ position: "relative" }}>
         <select
           value={value}

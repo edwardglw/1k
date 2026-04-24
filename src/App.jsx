@@ -1,7 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { UserProvider, useUser } from "./context/UserContext";
+import LandingPage from "./screens/landing";
 import Onboarding from "./screens/onboarding";
 import Dashboard from "./screens/dashboard";
+import WeekView from "./screens/week";
+import Profile from "./screens/profile";
 import { useEffect } from "react";
 
 function DevSeed() {
@@ -21,8 +24,11 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/dev" element={<DevSeed />} />
-      <Route path="/" element={started ? <Navigate to="/dashboard" replace /> : <Onboarding />} />
+      <Route path="/" element={started ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
+      <Route path="/onboarding" element={started ? <Navigate to="/dashboard" replace /> : <Onboarding />} />
       <Route path="/dashboard" element={started ? <Dashboard /> : <Navigate to="/" replace />} />
+      <Route path="/week/:weekNum" element={started ? <WeekView /> : <Navigate to="/" replace />} />
+      <Route path="/profile" element={started ? <Profile /> : <Navigate to="/" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

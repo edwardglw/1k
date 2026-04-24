@@ -12,10 +12,10 @@ const SUGGESTIONS = [
 export default function ScreenReward({ data, setData }) {
   return (
     <div>
-      <div style={{ fontSize: 22, fontWeight: 900, color: T.color.charcoal, fontFamily: T.font.display, lineHeight: 1.2, marginBottom: 6 }}>
+      <div style={{ fontSize: 22, fontWeight: 900, color: "var(--title-col)", fontFamily: T.font.display, lineHeight: 1.2, marginBottom: 6 }}>
         Pick your reward
       </div>
-      <div style={{ fontSize: 14, color: T.color.charcoal, marginBottom: 20, lineHeight: 1.5, opacity: 0.75 }}>
+      <div style={{ fontSize: 14, color: "var(--sub-col)", marginBottom: 20, lineHeight: 1.5 }}>
         Rewards are part of how we'll keep you going. Choose something you'll genuinely look forward to — it doesn't need to cost anything.
       </div>
       <input
@@ -30,7 +30,7 @@ export default function ScreenReward({ data, setData }) {
           fontFamily: T.font.body, outline: "none", boxSizing: "border-box", marginBottom: 14,
         }}
       />
-      <div style={{ fontSize: 11, fontWeight: 700, color: T.color.charcoalMuted, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "var(--sub-col)", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>
         Some ideas
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>

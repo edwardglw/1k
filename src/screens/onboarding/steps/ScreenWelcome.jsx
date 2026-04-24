@@ -15,7 +15,7 @@ export default function ScreenWelcome({ onNext, onOpenModal }) {
       </div>
 
       <div style={{ fontSize: 44, fontWeight: 900, color: T.color.charcoal, fontFamily: T.font.display, lineHeight: 0.95, letterSpacing: -1.2 }}>
-        FirstRun
+        1RUN.UK
       </div>
       <div style={{ fontSize: 18, fontWeight: 800, color: T.color.moss, fontFamily: T.font.display, lineHeight: 1.25, marginTop: 10, padding: "0 8px" }}>
         Move more. Eat well.<br />Every healthy habit begins somewhere.
@@ -47,7 +47,7 @@ export default function ScreenWelcome({ onNext, onOpenModal }) {
           ))}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display }}>See why FirstRun is different</div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display }}>See why 1RUN.UK is different</div>
           <div style={{ fontSize: 12, color: T.color.charcoalMuted, marginTop: 2 }}>Built for beginners. Moves at your pace.</div>
         </div>
         <Icon type="chevronR" size={18} color={T.color.charcoalMuted} />
@@ -76,16 +76,20 @@ export default function ScreenWelcome({ onNext, onOpenModal }) {
         </button>
       </div>
 
-      {/* Tertiary sign-in CTA */}
+      {/* Keyline above sign in */}
+      <div style={{ height: 1, background: T.color.ivoryDark, margin: "16px 0 14px" }} />
+
+      {/* Sign in CTA */}
       <button onClick={onNext} style={{
-        width: "100%", marginTop: 12, padding: "13px",
-        background: "transparent",
-        border: `1.5px solid ${T.color.ivoryDark}`,
+        width: "100%", padding: "14px",
+        background: T.color.white,
+        border: `2px solid ${T.color.moss}`,
         borderRadius: T.radius.lg,
-        fontSize: 13, fontWeight: 600, color: T.color.charcoalMuted,
-        fontFamily: T.font.body, cursor: "pointer",
+        fontSize: 14, fontWeight: 800, color: T.color.moss,
+        fontFamily: T.font.display, cursor: "pointer",
+        letterSpacing: 0.1,
       }}>
-        Already have an account? <span style={{ color: T.color.moss, fontWeight: 700 }}>Sign in</span>
+        Already have an account? Sign in
       </button>
     </div>
   );

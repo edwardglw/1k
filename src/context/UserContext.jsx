@@ -103,24 +103,49 @@ export function UserProvider({ children }) {
       if (weekComplete) {
         earnedBadge = {
           type: `week_${weekNum}_complete`,
-          label: weekNum === WEEKS.length ? "FirstRun complete" : `Week ${weekNum} done`,
+          label: weekNum === WEEKS.length ? "1RUN.UK complete" : `Week ${weekNum} done`,
           message: WEEK_BADGE_MESSAGES[weekNum] ?? `Week ${weekNum} complete.`,
           earnedAt: Date.now(),
         };
       }
     }
 
+    const doneDate = new Date().toISOString().split("T")[0];
     setProgressRaw((p) => ({
       ...p,
-      sessionsDone: { ...p.sessionsDone, [key]: true },
+      sessionsDone: { ...p.sessionsDone, [key]: doneDate },
       badges: earnedBadge ? [...p.badges, earnedBadge] : p.badges,
     }));
 
     return earnedBadge;
   };
 
+  const unmarkSessionDone = (weekNum, sessionIdx) => {
+    const key = `w${weekNum}-s${sessionIdx}`;
+    setProgressRaw((p) => {
+      const newSessionsDone = { ...p.sessionsDone };
+      delete newSessionsDone[key];
+
+      let newBadges = p.badges.filter(b => b.type !== `week_${weekNum}_complete`);
+      if (Object.keys(newSessionsDone).length === 0) {
+        newBadges = newBadges.filter(b => b.type !== "first_session");
+      }
+
+      return { ...p, sessionsDone: newSessionsDone, badges: newBadges };
+    });
+  };
+
   const isSessionDone = (weekNum, sessionIdx) =>
     !!progress.sessionsDone[`w${weekNum}-s${sessionIdx}`];
+
+  const getSessionDate = (weekNum, sessionIdx) => {
+    const val = progress.sessionsDone[`w${weekNum}-s${sessionIdx}`];
+    if (!val || val === true) return null;
+    try {
+      const d = new Date(val);
+      return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+    } catch { return null; }
+  };
 
   const getWeekStatus = (weekNum) => {
     const week = WEEKS[weekNum - 1];
@@ -154,7 +179,9 @@ export function UserProvider({ children }) {
       setProgress,
       completeOnboarding,
       markSessionDone,
+      unmarkSessionDone,
       isSessionDone,
+      getSessionDate,
       getWeekStatus,
       logWeighIn,
       hasWeighedInThisWeek,

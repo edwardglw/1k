@@ -109,13 +109,13 @@ export default function ScreenPlanReady({ data, onEdit }) {
       }}>
         <SummaryRow icon="trophy" iconColor={T.color.apricot} label="Ambition"
           value={data.ambition === "5K" ? "Work up to a parkrun (5K)" : "Your first 1K"}
-          onEdit={() => onEdit(1)} />
-        <SummaryRow icon="user" iconColor={T.color.sage} label="About you"
-          value={[data.displayName, data.age ? `${data.age} yrs` : null, data.gender, data.height ? `${data.height} cm` : null].filter(Boolean).join(" · ") || "Not answered yet"}
-          onEdit={() => onEdit(3)} />
+          onEdit={() => onEdit(0)} />
         <SummaryRow icon="run" iconColor={T.color.sky} label="Current activity"
           value={activityLabel}
           impact={activityImpact}
+          onEdit={() => onEdit(1)} />
+        <SummaryRow icon="user" iconColor={T.color.sage} label="About you"
+          value={[data.displayName, data.age ? `${data.age} yrs` : null, data.gender, data.height ? `${data.height} cm` : null].filter(Boolean).join(" · ") || "Not answered yet"}
           onEdit={() => onEdit(2)} />
         {!isUnder18 && (
           <SummaryRow icon="scale" iconColor={T.color.sage} label="Weight & goal"
@@ -126,15 +126,15 @@ export default function ScreenPlanReady({ data, onEdit }) {
             impact={data.targetWeight === "0"
               ? "Move more, feel better — this is your number to fuel that."
               : "A realistic, steady target. You can absolutely do this in 6 weeks."}
-            onEdit={() => onEdit(4)} />
+            onEdit={() => onEdit(3)} />
         )}
         <SummaryRow icon="heart" iconColor={needsEasier ? T.color.sky : T.color.sage}
           label="Anything we should know?"
           value={injurySummary}
           impact={needsEasier ? "Phase 1–2 sessions adjusted for lower impact" : null}
-          onEdit={() => onEdit(5)} />
+          onEdit={() => onEdit(4)} />
         <SummaryRow icon="gift" iconColor={T.color.apricot} label="Your reward"
-          value={data.reward || "Not set"} onEdit={() => onEdit(6)} isLast />
+          value={data.reward || "Not set"} onEdit={() => onEdit(5)} isLast />
       </div>
     </div>
   );

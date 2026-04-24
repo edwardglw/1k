@@ -1,17 +1,23 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { T } from "../../tokens";
 import { WEEKS } from "../../data/programme";
 import { useUser } from "../../context/UserContext";
 import Icon from "../../components/ui/Icon";
 import AtmosphericBG from "../../components/ui/AtmosphericBG";
 import WeekButton from "../../components/WeekButton";
-import WeekPanel from "../../components/WeekPanel";
 import GoalPanel from "../../components/GoalPanel";
 import WeightGraph from "../../components/ui/WeightGraph";
-import SessionDoneSheet from "../../components/SessionDoneSheet";
-import BadgeCelebration from "../../components/BadgeCelebration";
 import WeightLogSheet from "../../components/WeightLogSheet";
+
+const LIFESTYLE_TIPS = [
+  { icon: "flame", color: T.color.apricot, bg: T.color.apricotLight, title: "Eat back what you burn", body: "When you run, eat back those calories — all of them. This is a sustainable plan, not a crash diet." },
+  { icon: "utensils", color: T.color.moss, bg: T.color.sageLight, title: "Fuel before you move", body: "A small snack 60–90 minutes before a session keeps energy steady. A banana or oat-based snack works well." },
+  { icon: "heart", color: T.color.sky, bg: T.color.skyLight, title: "Protein after every run", body: "Aim for 15–20g of protein within an hour of finishing. It helps muscles recover and reduces next-day fatigue." },
+  { icon: "clock", color: T.color.moss, bg: T.color.sageLight, title: "Sleep is part of the plan", body: "Your body repairs and adapts while you sleep. Seven to nine hours helps you get more from every session." },
+  { icon: "target", color: T.color.sky, bg: T.color.skyLight, title: "Rest days are progress too", body: "The improvement happens between sessions, not during them. Easy days are when the body catches up." },
+  { icon: "leaf", color: T.color.apricot, bg: T.color.apricotLight, title: "Stay hydrated throughout the day", body: "Most people underestimate how much hydration affects energy and mood. Aim for water before you feel thirsty." },
+];
 
 const getGreeting = () => {
   const h = new Date().getHours();
@@ -29,19 +35,19 @@ const MOTIV_LINES = [
 ];
 
 const TUTORIAL_CARDS = [
-  { icon: "calendar", color: T.color.sage, title: "Your 6-week plan", body: "Tap a week to see its sessions. Log each one when you complete it." },
+  { icon: "calendar", color: T.color.sage, title: "How to use this app", body: "Tap a week to see its sessions. Log each one when you complete it." },
   { icon: "scale", color: T.color.sky, title: "Track your progress", body: "Log your weight each week. Your daily calorie target is set to your goal — eat them all." },
   { icon: "trophy", color: T.color.apricot, title: "Run your first 1K", body: "Complete all 18 sessions and cross the finish line. Tap Goals & badges to see what you're working towards." },
 ];
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { profile, progress, getWeekStatus, isSessionDone, markSessionDone, logWeighIn, hasWeighedInThisWeek, totalSessions, sessionsCompleted } = useUser();
+  const location = useLocation();
+  const onProfile = location.pathname === "/profile";
+  const { profile, progress, getWeekStatus, isSessionDone, logWeighIn, hasWeighedInThisWeek, totalSessions, sessionsCompleted, isUnder18 } = useUser();
 
-  const [selectedWeek, setSelectedWeek] = useState(null);
+  const [showGoalPanel, setShowGoalPanel] = useState(false);
   const [showBadge, setShowBadge] = useState(true);
-  const [pendingSession, setPendingSession] = useState(null);
-  const [earnedBadge, setEarnedBadge] = useState(null);
   const [showWeightSheet, setShowWeightSheet] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
   const [tutorialDismissed, setTutorialDismissed] = useState(false);
@@ -53,14 +59,6 @@ export default function Dashboard() {
     return MOTIV_LINES[Math.floor(Math.random() * MOTIV_LINES.length)](profile, s);
   });
 
-  const handleWeekBtn = (num) => setSelectedWeek(selectedWeek === num ? null : num);
-
-  const handleConfirmSession = () => {
-    const { weekNum, sessionIdx } = pendingSession;
-    const badge = markSessionDone(weekNum, sessionIdx);
-    setPendingSession(null);
-    if (badge) setEarnedBadge(badge);
-  };
   const weeksCompleted = WEEKS.filter((_, i) => getWeekStatus(i + 1) === "complete").length;
   const progressPct = Math.round((progress.currentWeek / WEEKS.length) * 100);
   const latestWeighIn = progress.weighIns.length ? progress.weighIns[progress.weighIns.length - 1].value : null;
@@ -70,6 +68,21 @@ export default function Dashboard() {
     : null;
 
   const currentWeekData = WEEKS[progress.currentWeek - 1];
+
+  const rotatingTips = useMemo(() => {
+    try {
+      const stored = parseInt(localStorage.getItem("fr_tip_idx") || "0", 10);
+      const next = (stored + 1) % LIFESTYLE_TIPS.length;
+      localStorage.setItem("fr_tip_idx", String(next));
+      return [
+        LIFESTYLE_TIPS[next % LIFESTYLE_TIPS.length],
+        LIFESTYLE_TIPS[(next + 1) % LIFESTYLE_TIPS.length],
+        LIFESTYLE_TIPS[(next + 2) % LIFESTYLE_TIPS.length],
+      ];
+    } catch {
+      return LIFESTYLE_TIPS.slice(0, 3);
+    }
+  }, []);
 
   const dismissTutorial = () => {
     setTutorialFading(true);
@@ -103,8 +116,8 @@ export default function Dashboard() {
             </div>
           </div>
           <button
-            onClick={() => navigate("/profile")}
-            aria-label="Edit profile"
+            onClick={() => navigate(onProfile ? "/dashboard" : "/profile")}
+            aria-label={onProfile ? "Close profile" : "Edit profile"}
             style={{
               background: T.color.white,
               border: `2px solid ${T.color.moss}`,
@@ -113,8 +126,9 @@ export default function Dashboard() {
               display: "flex", alignItems: "center", justifyContent: "center",
               cursor: "pointer", marginLeft: 12,
               boxShadow: `0 2px 6px ${T.color.moss}22, inset 0 1px 0 rgba(255,255,255,0.7)`,
+              transition: "all 0.2s ease",
             }}>
-            <Icon type="user" size={18} color={T.color.moss} />
+            <Icon type={onProfile ? "x" : "user"} size={18} color={T.color.moss} />
           </button>
         </div>
       </div>
@@ -228,34 +242,21 @@ export default function Dashboard() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             {WEEKS.map((w) => (
               <WeekButton key={w.num} num={w.num} status={getWeekStatus(w.num)} isGoal={false}
-                isSelected={selectedWeek === w.num} onClick={() => handleWeekBtn(w.num)} />
+                isSelected={false} onClick={() => navigate(`/week/${w.num}`)} />
             ))}
-            <WeekButton num={7} status="goal" isGoal isSelected={selectedWeek === 7} onClick={() => handleWeekBtn(7)} />
+            <WeekButton num={7} status="goal" isGoal isSelected={showGoalPanel} onClick={() => setShowGoalPanel(g => !g)} />
           </div>
         </div>
 
-        {/* Expanded Panel */}
-        {selectedWeek !== null && selectedWeek <= 6 && (
-          <div style={{ marginBottom: 12 }}>
-            <WeekPanel
-              week={WEEKS[selectedWeek - 1]}
-              sessionsDone={WEEKS[selectedWeek - 1].sessions.reduce((acc, _, i) => ({ ...acc, [i]: isSessionDone(selectedWeek, i) }), {})}
-              onClose={() => setSelectedWeek(null)}
-              onNav={(dir) => { const next = selectedWeek + dir; if (next >= 1 && next <= 6) setSelectedWeek(next); }}
-              hasPrev={selectedWeek > 1}
-              hasNext={selectedWeek < 6}
-              onSessionTap={selectedWeek === progress.currentWeek ? (idx) => setPendingSession({ weekNum: selectedWeek, sessionIdx: idx }) : null}
-            />
-          </div>
-        )}
-        {selectedWeek === 7 && (
+        {/* Goal panel */}
+        {showGoalPanel && (
           <div style={{ marginBottom: 12 }}>
             <GoalPanel
               ambition={profile.ambition || "1K"}
               reward={profile.reward}
               sessionsRemaining={totalSessions - sessionsCompleted}
               badges={progress.badges}
-              onClose={() => setSelectedWeek(null)}
+              onClose={() => setShowGoalPanel(false)}
             />
           </div>
         )}
@@ -285,7 +286,7 @@ export default function Dashboard() {
         </div>
 
         {/* Weight Journey + Calories */}
-        {progress.startWeight && targetWeight && (
+        {!isUnder18 && progress.startWeight && targetWeight && (
           <div style={{ background: T.color.white, borderRadius: T.radius.xl, padding: "16px 14px 0", marginBottom: 12, boxShadow: "0 1px 4px rgba(59,63,58,0.06)", overflow: "hidden" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
               <div>
@@ -338,45 +339,102 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Eating Card */}
+        {/* Healthy lifestyle section */}
         {currentWeekData && (
-          <button onClick={() => {}} style={{
-            width: "100%", background: T.color.white, borderRadius: T.radius.xl,
-            padding: "16px 18px", display: "flex", alignItems: "center", gap: 14,
-            border: `1.5px solid ${T.color.ivoryDark}`, boxShadow: "0 1px 4px rgba(59,63,58,0.06)",
-            cursor: "pointer", textAlign: "left",
-          }}>
-            <div style={{ width: 44, height: 44, borderRadius: T.radius.lg, flexShrink: 0, background: T.color.sageLight, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Icon type="utensils" size={22} color={T.color.sage} />
+          <>
+            <div style={{ fontSize: 11, fontWeight: 700, color: T.color.charcoalMuted, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8 }}>
+              Healthy lifestyle
             </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display }}>
-                This week: {currentWeekData.eating}
+
+            {/* This week's focus */}
+            <div style={{
+              background: T.color.white, borderRadius: T.radius.xl,
+              padding: "16px 18px", marginBottom: 8,
+              display: "flex", alignItems: "center", gap: 14,
+              border: `2px solid ${T.color.sage}55`,
+              boxShadow: `0 2px 10px ${T.color.sage}18`,
+            }}>
+              <div style={{ width: 44, height: 44, borderRadius: T.radius.lg, flexShrink: 0, background: T.color.sageLight, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Icon type="utensils" size={22} color={T.color.sage} />
               </div>
-              <div style={{ fontSize: 12, color: T.color.charcoalMuted, marginTop: 2, lineHeight: 1.4 }}>
-                {currentWeekData.eatingDetail}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, color: T.color.sage, marginBottom: 2 }}>This week</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display }}>
+                  {currentWeekData.eating}
+                </div>
+                <div style={{ fontSize: 12, color: T.color.charcoalMuted, marginTop: 2, lineHeight: 1.4 }}>
+                  {currentWeekData.eatingDetail}
+                </div>
               </div>
             </div>
-            <Icon type="chevronR" size={18} color={T.color.charcoalMuted} />
-          </button>
+
+            {/* Rotating tips — 3 shown per visit, cycling through the full pool */}
+            {rotatingTips.map((tip) => (
+              <div key={tip.title} style={{
+                background: T.color.ivory, borderRadius: T.radius.xl,
+                padding: "13px 15px", marginBottom: 6,
+                display: "flex", gap: 12, alignItems: "flex-start",
+                border: `1.5px solid ${T.color.ivoryDark}`,
+              }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: T.radius.md, flexShrink: 0,
+                  background: tip.bg, display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <Icon type={tip.icon} size={17} color={tip.color} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display, lineHeight: 1.3 }}>{tip.title}</div>
+                  <div style={{ fontSize: 12, color: T.color.charcoalMuted, marginTop: 3, lineHeight: 1.5, fontWeight: 500 }}>{tip.body}</div>
+                </div>
+              </div>
+            ))}
+
+            {/* Recipes — links pending real URLs */}
+            <div style={{ fontSize: 11, fontWeight: 700, color: T.color.charcoalMuted, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8, marginTop: 10 }}>
+              Quick recipes
+            </div>
+            {[
+              { title: "Banana & oat smoothie", desc: "Quick pre-run fuel — ready in 2 minutes.", time: "2 min", tone: "apricot" },
+              { title: "Chicken & sweet potato bowl", desc: "High-protein post-run recovery meal.", time: "30 min", tone: "sage" },
+              { title: "Spiced lentil soup", desc: "Warm, filling and packed with plant protein.", time: "25 min", tone: "sky" },
+            ].map((r) => {
+              const toneColors = {
+                apricot: { bg: T.color.apricotLight, accent: T.color.apricot, border: T.color.apricot },
+                sage:    { bg: T.color.sageLight,   accent: T.color.moss,    border: T.color.moss },
+                sky:     { bg: T.color.skyLight,     accent: T.color.sky,     border: T.color.sky },
+              };
+              const tc = toneColors[r.tone] || toneColors.sage;
+              return (
+                <div key={r.title} style={{
+                  display: "flex", alignItems: "center", gap: 12,
+                  background: T.color.white,
+                  border: `2px solid ${tc.border}33`,
+                  borderLeft: `4px solid ${tc.border}`,
+                  borderRadius: T.radius.xl, padding: "14px 16px", marginBottom: 8,
+                  boxShadow: `0 2px 8px ${tc.border}14`,
+                }}>
+                  <div style={{
+                    width: 42, height: 42, borderRadius: T.radius.md, flexShrink: 0,
+                    background: tc.bg, display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <Icon type="utensils" size={18} color={tc.accent} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display, lineHeight: 1.25 }}>{r.title}</div>
+                    <div style={{ fontSize: 12, color: T.color.charcoalMuted, marginTop: 2, fontWeight: 500 }}>{r.desc}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
+                      <Icon type="clock" size={11} color={tc.accent} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: tc.accent }}>{r.time}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </>
         )}
       </div>
       </div>
 
-      {pendingSession && (
-        <SessionDoneSheet
-          session={WEEKS[pendingSession.weekNum - 1].sessions[pendingSession.sessionIdx]}
-          weekNum={pendingSession.weekNum}
-          onConfirm={handleConfirmSession}
-          onDismiss={() => setPendingSession(null)}
-        />
-      )}
-      {earnedBadge && (
-        <BadgeCelebration
-          badge={earnedBadge}
-          onContinue={() => setEarnedBadge(null)}
-        />
-      )}
       {showWeightSheet && (
         <WeightLogSheet
           startWeight={progress.startWeight}

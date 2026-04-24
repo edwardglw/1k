@@ -1,4 +1,4 @@
-# FirstRun — Claude Code context
+# 1RUN.UK — Claude Code context
 
 ## What this is
 A mobile-first React PWA for beginner runners. 6-week walk-to-run programme with integrated weekly eating habits. Target: run a first 1K. Built with Vite + React + React Router. No backend yet — localStorage only.
@@ -48,7 +48,7 @@ src/
 - Weight log uses `prompt()` — known placeholder, replace with bottom-sheet modal
 
 ## PRD open questions (don't block on these, use sensible defaults)
-- Brand name: FirstRun is working title
+- Brand name: 1RUN.UK (confirmed, no longer a working title)
 - Backend: Firebase vs Supabase vs local-first — not decided
 - Auth: stub only, buttons advance onboarding flow
 - Imperial units: not implemented

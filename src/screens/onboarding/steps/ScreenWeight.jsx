@@ -49,10 +49,10 @@ export default function ScreenWeight({ data, setData }) {
 
   return (
     <div>
-      <div style={{ fontSize: 22, fontWeight: 900, color: T.color.charcoal, fontFamily: T.font.display, lineHeight: 1.2, marginBottom: 6 }}>
+      <div style={{ fontSize: 22, fontWeight: 900, color: "var(--title-col)", fontFamily: T.font.display, lineHeight: 1.2, marginBottom: 6 }}>
         Your weight & 6-week goal
       </div>
-      <div style={{ fontSize: 14, color: T.color.charcoal, marginBottom: 24, lineHeight: 1.5, opacity: 0.75 }}>
+      <div style={{ fontSize: 14, color: "var(--sub-col)", marginBottom: 24, lineHeight: 1.5 }}>
         Small, steady progress is the goal. Be kind to yourself.
       </div>
 

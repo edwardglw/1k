@@ -32,6 +32,8 @@ export default function Icon({ type, size = 20, color = T.color.charcoal, stroke
     info: <svg {...p}><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>,
     mail: <svg {...p}><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M22 7l-10 7L2 7" /></svg>,
     utensils: <svg {...p}><path d="M3 2v7a2 2 0 002 2h1v11h2V11h1a2 2 0 002-2V2H9V6H7V2H5V6H4V2H3z" /><path d="M19 2h-2v20h2V12h1a2 2 0 000-4h-1V2z" /></svg>,
+    share: <svg {...p}><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" /></svg>,
+    shareNode: <svg {...p}><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>,
   };
   return icons[type] || null;
 }
