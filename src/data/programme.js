@@ -1,3 +1,19 @@
+function fmtMin(m) {
+  const totalSecs = Math.round(m * 6) * 10;
+  const mins = Math.floor(totalSecs / 60);
+  const secs = totalSecs % 60;
+  if (mins === 0) return `${secs} sec`;
+  if (secs === 0) return `${mins} min`;
+  return `${mins} min ${secs} sec`;
+}
+
+export function formatIntervals(intervals, walkMult = 1.0, runMult = 1.0) {
+  const w = Math.round(intervals.walk * walkMult * 10) / 10;
+  const r = Math.round(intervals.run * runMult * 10) / 10;
+  const verb = intervals.verb ?? "run";
+  return `Walk ${fmtMin(w)} / ${verb} ${fmtMin(r)} \xd7 ${intervals.repeats}`;
+}
+
 export const WEEKS = [
   {
     num: 1, label: "Foundation", phase: "Phase 1",
@@ -27,9 +43,9 @@ export const WEEKS = [
     eating: "Drink well",
     eatingDetail: "Keep well hydrated throughout the day. Alcohol calories add up quickly.",
     sessions: [
-      { name: "Session 1", desc: "Walk 2 min / jog 1 min × 4 repeats" },
-      { name: "Session 2", desc: "Walk 2 min / jog 1 min × 4 repeats" },
-      { name: "Session 3", desc: "Walk 2 min / jog 1 min × 4 repeats" },
+      { name: "Session 1", desc: "Walk 2 min / jog 1 min × 4 repeats", intervals: { walk: 2, run: 1, repeats: 4, verb: "jog" } },
+      { name: "Session 2", desc: "Walk 2 min / jog 1 min × 4 repeats", intervals: { walk: 2, run: 1, repeats: 4, verb: "jog" } },
+      { name: "Session 3", desc: "Walk 2 min / jog 1 min × 4 repeats", intervals: { walk: 2, run: 1, repeats: 4, verb: "jog" } },
     ],
   },
   {
@@ -38,9 +54,9 @@ export const WEEKS = [
     eating: "Reduce ultra-processed food",
     eatingDetail: "Small swaps, not elimination. Practical and achievable changes.",
     sessions: [
-      { name: "Session 1", desc: "Walk 2 min / jog 90 sec × 4 repeats" },
-      { name: "Session 2", desc: "Walk 2 min / jog 90 sec × 4 repeats" },
-      { name: "Session 3", desc: "Walk 2 min / jog 90 sec × 4 repeats" },
+      { name: "Session 1", desc: "Walk 2 min / jog 90 sec × 4 repeats", intervals: { walk: 2, run: 1.5, repeats: 4, verb: "jog" } },
+      { name: "Session 2", desc: "Walk 2 min / jog 90 sec × 4 repeats", intervals: { walk: 2, run: 1.5, repeats: 4, verb: "jog" } },
+      { name: "Session 3", desc: "Walk 2 min / jog 90 sec × 4 repeats", intervals: { walk: 2, run: 1.5, repeats: 4, verb: "jog" } },
     ],
   },
   {
@@ -49,9 +65,9 @@ export const WEEKS = [
     eating: "Portion awareness",
     eatingDetail: "Simple visual guides — no weighing required.",
     sessions: [
-      { name: "Session 1", desc: "Walk 2 min / run 2 min × 4 repeats" },
-      { name: "Session 2", desc: "Walk 2 min / run 3 min × 3 repeats" },
-      { name: "Session 3", desc: "Walk 3 min / run 4 min × 2 repeats" },
+      { name: "Session 1", desc: "Walk 2 min / run 2 min × 4 repeats", intervals: { walk: 2, run: 2, repeats: 4 } },
+      { name: "Session 2", desc: "Walk 2 min / run 3 min × 3 repeats", intervals: { walk: 2, run: 3, repeats: 3 } },
+      { name: "Session 3", desc: "Walk 3 min / run 4 min × 2 repeats", intervals: { walk: 3, run: 4, repeats: 2 } },
     ],
   },
   {
@@ -60,7 +76,7 @@ export const WEEKS = [
     eating: "Eating before & after exercise",
     eatingDetail: "What to eat and when, to support your sessions and recovery.",
     sessions: [
-      { name: "Session 1", desc: "Walk 3 min / run 5 min × 2 repeats" },
+      { name: "Session 1", desc: "Walk 3 min / run 5 min × 2 repeats", intervals: { walk: 3, run: 5, repeats: 2 } },
       { name: "Session 2", desc: "Run 7 min, walk 3 min, run 3 min" },
       { name: "Session 3 — THE 1K", desc: "Continuous run 8–10 minutes" },
     ],

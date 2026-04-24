@@ -30,14 +30,14 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [showBenefits, setShowBenefits] = useState(false);
 
-  const startOnboarding = () => navigate("/onboarding");
+  const startOnboarding = () => navigate("/signup");
 
   return (
     <div className="lp">
       {/* NAV */}
       <nav className="lp-nav">
         <a href="/" className="lp-logo">1RUN<span>.UK</span></a>
-        <button className="lp-nav-btn" onClick={startOnboarding}>Sign in</button>
+        <button className="lp-nav-btn" onClick={() => navigate("/signin")}>Sign in</button>
       </nav>
 
       {/* HERO */}
@@ -83,8 +83,8 @@ export default function LandingPage() {
                 <path d="M22 7l-10 7L2 7" />
               </svg>
               <span className="lp-cta-text">
-                <span className="lp-cta-main">Sign up with email</span>
-                <span className="lp-cta-free">It's free</span>
+                <span className="lp-cta-main">Register with email</span>
+                <span className="lp-cta-free">Free · 2 min setup</span>
               </span>
             </button>
             <button className="lp-cta lp-cta--google" onClick={startOnboarding}>
@@ -96,7 +96,7 @@ export default function LandingPage() {
               </svg>
               <span className="lp-cta-text">
                 <span className="lp-cta-main">Continue with Google</span>
-                <span className="lp-cta-free">It's free</span>
+                <span className="lp-cta-free">Free · 2 min setup</span>
               </span>
             </button>
           </div>
@@ -189,6 +189,33 @@ export default function LandingPage() {
           Start for free
           <span className="lp-final-arrow">→</span>
         </button>
+      </section>
+
+      {/* HEALTH DISCLAIMER */}
+      <section className="lp-disclaimer">
+        <div className="lp-disclaimer-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        </div>
+        <div className="lp-disclaimer-body">
+          <p className="lp-disclaimer-heading">A note before you start</p>
+          <p className="lp-disclaimer-text">
+            1RUN.UK is a general fitness programme designed for healthy adults who want to begin running.
+            It is not medical advice and is not a substitute for guidance from a qualified health professional.
+          </p>
+          <p className="lp-disclaimer-text">
+            If your GP or doctor has advised you not to exercise, or if you have a heart condition, recent
+            injury, chronic illness, or any concern about your health, please seek medical clearance before
+            starting this or any other exercise programme.
+          </p>
+          <p className="lp-disclaimer-text">
+            Listen to your body. If something hurts beyond normal exertion — stop, rest, and seek advice.
+            Progress at a pace that feels right for you.
+          </p>
+        </div>
       </section>
 
       {/* FOOTER */}

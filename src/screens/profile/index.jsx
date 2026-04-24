@@ -135,7 +135,7 @@ function NativeSelect({ value, options, labels, onChange, suffix = "" }) {
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { profile, setProfile, calcAllowance, isUnder18, progress } = useUser();
+  const { profile, setProfile, calcAllowance, isUnder18, progress, firebaseUser, signOutUser } = useUser();
 
   const save = (field, value) => {
     const updates = { [field]: value };
@@ -270,49 +270,23 @@ export default function Profile() {
         {/* Account */}
         <SectionLabel>Account</SectionLabel>
         <div style={{ background: T.color.white, borderRadius: T.radius.xl, overflow: "hidden", boxShadow: "0 1px 4px rgba(59,63,58,0.06)" }}>
-          <FieldRow label="Email">
-            {profile.email ? (
-              <span style={{ fontSize: 14, fontWeight: 700, color: T.color.charcoal, fontFamily: "'Nunito', sans-serif" }}>
-                {profile.email}
-              </span>
-            ) : (
-              <span style={{ fontSize: 14, fontWeight: 600, color: T.color.charcoalLight, fontFamily: "'Nunito', sans-serif" }}>
-                No email saved yet
-              </span>
-            )}
-          </FieldRow>
-
-          {/* Sign up row */}
-          <FieldRow label="New here?">
-            <button onClick={() => {}} style={{
-              background: "none", border: `1.5px solid ${T.color.ivoryDark}`,
-              borderRadius: T.radius.md, padding: "9px 14px",
-              fontSize: 13, fontWeight: 700, color: T.color.charcoalMuted,
-              fontFamily: "'Nunito', sans-serif", cursor: "pointer",
-            }}>
-              Create account
-            </button>
-          </FieldRow>
-
-          {/* Extra keyline between sign up and sign in */}
-          <div style={{ height: 1, background: T.color.ivoryDark, margin: "0 16px" }} />
-
-          {/* Sign in row */}
-          <FieldRow label="Already have an account?" isLast>
-            <button onClick={() => {}} style={{
-              background: T.color.moss, border: "none",
-              borderRadius: T.radius.md, padding: "10px 18px",
-              fontSize: 13, fontWeight: 800, color: T.color.white,
-              fontFamily: "'Nunito', sans-serif", cursor: "pointer",
-              letterSpacing: 0.2,
-            }}>
-              Sign in
-            </button>
+          <FieldRow label="Email" isLast>
+            <span style={{ fontSize: 13, fontWeight: 600, color: T.color.charcoalMuted, fontFamily: "'Nunito', sans-serif" }}>
+              {firebaseUser?.email ?? "—"}
+            </span>
           </FieldRow>
         </div>
-        <div style={{ fontSize: 11, color: T.color.charcoalMuted, textAlign: "center", marginTop: 10, lineHeight: 1.5 }}>
-          Your data is stored on this device. Sign-in coming soon.
-        </div>
+        <button
+          onClick={signOutUser}
+          style={{
+            width: "100%", marginTop: 10, padding: "14px",
+            background: "none", border: `1.5px solid ${T.color.ivoryDark}`,
+            borderRadius: T.radius.xl, cursor: "pointer",
+            fontSize: 14, fontWeight: 700, color: T.color.charcoalMuted,
+            fontFamily: "'Nunito', sans-serif",
+          }}>
+          Sign out
+        </button>
 
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { T } from "../../tokens";
-import { WEEKS } from "../../data/programme";
+import { WEEKS, formatIntervals } from "../../data/programme";
 import { useUser } from "../../context/UserContext";
 import Icon from "../../components/ui/Icon";
 import AtmosphericBG from "../../components/ui/AtmosphericBG";
@@ -9,6 +9,7 @@ import WeekButton from "../../components/WeekButton";
 import GoalPanel from "../../components/GoalPanel";
 import SessionDoneSheet from "../../components/SessionDoneSheet";
 import BadgeCelebration from "../../components/BadgeCelebration";
+import WeekFeelingSheet from "../../components/WeekFeelingSheet";
 import ShareSheet from "../../components/ShareSheet";
 
 const APP_URL = "https://1k-beta.vercel.app";
@@ -48,14 +49,21 @@ export default function WeekView() {
 
   const {
     profile, progress, isSessionDone, getSessionDate,
-    markSessionDone, unmarkSessionDone, getWeekStatus, totalSessions, sessionsCompleted,
+    markSessionDone, unmarkSessionDone, applyWeekFeedback, getWeekStatus, totalSessions, sessionsCompleted,
   } = useUser();
+
+  const walkMult = progress.walkMult ?? 1.0;
+  const runMult = progress.runMult ?? 1.0;
 
   const [showGoal, setShowGoal] = useState(false);
   const [pendingSession, setPendingSession] = useState(null);
   const [pendingUnmark, setPendingUnmark] = useState(null);
   const [earnedBadge, setEarnedBadge] = useState(null);
+  const [showFeelingSheet, setShowFeelingSheet] = useState(false);
   const [shareMsg, setShareMsg] = useState(null);
+  const [showWeekLocked, setShowWeekLocked] = useState(false);
+
+  const prevWeekComplete = weekNum === 1 || getWeekStatus(weekNum - 1) === "complete";
 
   if (!week) {
     navigate("/dashboard", { replace: true });
@@ -66,6 +74,17 @@ export default function WeekView() {
     const badge = markSessionDone(weekNum, pendingSession.sessionIdx);
     setPendingSession(null);
     if (badge) setEarnedBadge(badge);
+  };
+
+  const handleBadgeContinue = () => {
+    const isWeekBadge = earnedBadge?.type?.startsWith("week_") && earnedBadge.type.endsWith("_complete");
+    setEarnedBadge(null);
+    if (isWeekBadge) setShowFeelingSheet(true);
+  };
+
+  const handleFeelingSubmit = (feedback) => {
+    applyWeekFeedback(weekNum, feedback);
+    setShowFeelingSheet(false);
   };
 
   const doneSessions = week.sessions.map((_, i) => isSessionDone(weekNum, i));
@@ -380,7 +399,7 @@ export default function WeekView() {
                   marginBottom: done ? 10 : 12,
                 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.45, color: done ? T.color.moss : T.color.charcoal }}>
-                    {s.desc}
+                    {s.intervals ? formatIntervals(s.intervals, walkMult, runMult) : s.desc}
                   </div>
                 </div>
 
@@ -401,17 +420,19 @@ export default function WeekView() {
                 {/* Mark as done */}
                 {!done && (
                   <button
-                    onClick={() => setPendingSession({ sessionIdx: i })}
+                    onClick={() => prevWeekComplete ? setPendingSession({ sessionIdx: i }) : setShowWeekLocked(true)}
                     style={{
                       width: "100%", padding: "13px", border: "none", borderRadius: T.radius.lg,
                       fontSize: 14, fontWeight: 800, fontFamily: T.font.display,
-                      background: `linear-gradient(135deg, ${T.color.moss} 0%, ${T.color.sage} 100%)`,
-                      color: T.color.white,
-                      boxShadow: `0 4px 16px ${T.color.moss}44`,
+                      background: prevWeekComplete
+                        ? `linear-gradient(135deg, ${T.color.moss} 0%, ${T.color.sage} 100%)`
+                        : T.color.ivoryDark,
+                      color: prevWeekComplete ? T.color.white : T.color.charcoalMuted,
+                      boxShadow: prevWeekComplete ? `0 4px 16px ${T.color.moss}44` : "none",
                       cursor: "pointer",
                       display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                     }}>
-                    <Icon type="check" size={15} color={T.color.white} />
+                    <Icon type="check" size={15} color={prevWeekComplete ? T.color.white : T.color.charcoalMuted} />
                     Mark as done
                   </button>
                 )}
@@ -488,8 +509,67 @@ export default function WeekView() {
       {earnedBadge && (
         <BadgeCelebration
           badge={earnedBadge}
-          onContinue={() => setEarnedBadge(null)}
+          onContinue={handleBadgeContinue}
         />
+      )}
+
+      {showFeelingSheet && (
+        <WeekFeelingSheet
+          weekNum={weekNum}
+          onSubmit={handleFeelingSubmit}
+        />
+      )}
+
+      {showWeekLocked && (
+        <>
+          <div onClick={() => setShowWeekLocked(false)} style={{
+            position: "fixed", inset: 0,
+            background: "rgba(59,63,58,0.45)", backdropFilter: "blur(4px)",
+            zIndex: 100, animation: "fadeIn 0.2s ease",
+          }} />
+          <div style={{
+            position: "fixed", bottom: 0, left: 0, right: 0,
+            maxWidth: 430, margin: "0 auto",
+            background: T.color.white,
+            borderRadius: `${T.radius.xl}px ${T.radius.xl}px 0 0`,
+            padding: "20px 24px 44px",
+            zIndex: 101, animation: "slideUp 0.3s ease",
+            fontFamily: T.font.body, textAlign: "center",
+          }}>
+            <div style={{ width: 36, height: 4, background: T.color.ivoryTone, borderRadius: 2, margin: "0 auto 22px" }} />
+            <div style={{
+              width: 52, height: 52, borderRadius: T.radius.full, margin: "0 auto 14px",
+              background: T.color.ivoryDark,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Icon type="chevronL" size={22} color={T.color.charcoalMuted} />
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: T.color.charcoal, fontFamily: T.font.display, marginBottom: 8 }}>
+              Complete Week {weekNum - 1} first
+            </div>
+            <div style={{ fontSize: 14, color: T.color.charcoalMuted, lineHeight: 1.6, marginBottom: 24 }}>
+              Finish all three sessions in Week {weekNum - 1} before moving on.
+            </div>
+            <button
+              onClick={() => { setShowWeekLocked(false); navigate(`/week/${weekNum - 1}`); }}
+              style={{
+                width: "100%", padding: "15px", border: "none", borderRadius: T.radius.lg,
+                fontSize: 15, fontWeight: 800, fontFamily: T.font.display,
+                background: `linear-gradient(135deg, ${T.color.moss}, ${T.color.sage})`,
+                color: T.color.white, cursor: "pointer",
+                boxShadow: `0 4px 16px ${T.color.moss}44`, marginBottom: 10,
+              }}>
+              Go to Week {weekNum - 1}
+            </button>
+            <button onClick={() => setShowWeekLocked(false)} style={{
+              width: "100%", padding: "12px", background: "none", border: "none",
+              color: T.color.charcoalMuted, fontSize: 14, fontWeight: 600,
+              cursor: "pointer", fontFamily: T.font.body,
+            }}>
+              Got it
+            </button>
+          </div>
+        </>
       )}
 
       {shareMsg && <ShareSheet message={shareMsg} onClose={() => setShareMsg(null)} />}

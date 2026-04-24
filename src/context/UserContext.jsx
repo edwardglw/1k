@@ -1,4 +1,14 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, db } from "../lib/firebase";
 import { WEEKS } from "../data/programme";
 
 const WEEK_BADGE_MESSAGES = {
@@ -12,7 +22,7 @@ const WEEK_BADGE_MESSAGES = {
 
 const UserContext = createContext(null);
 
-const DEFAULT_PROFILE = {
+export const DEFAULT_PROFILE = {
   displayName: "",
   ambition: "",
   activity: "",
@@ -26,14 +36,17 @@ const DEFAULT_PROFILE = {
   calorieAllowance: null,
 };
 
-const DEFAULT_PROGRESS = {
+export const DEFAULT_PROGRESS = {
   currentWeek: 1,
-  sessionsDone: {},   // key: "w{week}-s{idx}" → true
-  weighIns: [],       // [{ week, value }]
-  badges: [],         // [{ type, label, message, earnedAt }]
+  sessionsDone: {},
+  weighIns: [],
+  badges: [],
   startWeight: null,
   programmeStarted: false,
   programmeComplete: false,
+  weekFeedback: {},
+  walkMult: 1.0,
+  runMult: 1.0,
 };
 
 function calcAllowance(profile) {
@@ -51,25 +64,88 @@ function calcAllowance(profile) {
   return Math.max(1200, Math.round(tdee + dailyDeficit));
 }
 
+function readLocal(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+  catch { return fallback; }
+}
+
 export function UserProvider({ children }) {
-  const [profile, setProfileRaw] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("fr_profile")) || DEFAULT_PROFILE; }
-    catch { return DEFAULT_PROFILE; }
-  });
+  const [firebaseUser, setFirebaseUser] = useState(undefined); // undefined = loading
+  const [profile, setProfileRaw] = useState(() => readLocal("fr_profile", DEFAULT_PROFILE));
+  const [progress, setProgressRaw] = useState(() => readLocal("fr_progress", DEFAULT_PROGRESS));
 
-  const [progress, setProgressRaw] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("fr_progress")) || DEFAULT_PROGRESS; }
-    catch { return DEFAULT_PROGRESS; }
-  });
+  // ── Firebase auth listener ──────────────────────────────────────────────
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      setFirebaseUser(user ?? null);
+      if (!user) return;
 
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
+
+      if (snap.exists()) {
+        // Returning user — load Firestore data
+        const data = snap.data();
+        if (data.profile) {
+          setProfileRaw(data.profile);
+          localStorage.setItem("fr_profile", JSON.stringify(data.profile));
+        }
+        if (data.progress) {
+          const merged = { ...DEFAULT_PROGRESS, ...data.progress };
+          setProgressRaw(merged);
+          localStorage.setItem("fr_progress", JSON.stringify(merged));
+        }
+      } else {
+        // New user — save whatever's in local state to Firestore
+        const localProfile = readLocal("fr_profile", DEFAULT_PROFILE);
+        const localProgress = readLocal("fr_progress", DEFAULT_PROGRESS);
+        await setDoc(ref, { profile: localProfile, progress: localProgress });
+      }
+    });
+    return unsub;
+  }, []);
+
+  // ── Sync profile/progress → localStorage + Firestore ───────────────────
   useEffect(() => {
     localStorage.setItem("fr_profile", JSON.stringify(profile));
-  }, [profile]);
+    if (firebaseUser && profile.displayName) {
+      setDoc(doc(db, "users", firebaseUser.uid), { profile }, { merge: true }).catch(() => {});
+    }
+  }, [profile, firebaseUser]);
 
   useEffect(() => {
     localStorage.setItem("fr_progress", JSON.stringify(progress));
-  }, [progress]);
+    if (firebaseUser && progress.programmeStarted) {
+      setDoc(doc(db, "users", firebaseUser.uid), { progress }, { merge: true }).catch(() => {});
+    }
+  }, [progress, firebaseUser]);
 
+  // ── Auth actions ────────────────────────────────────────────────────────
+  const signIn = (email, password) =>
+    signInWithEmailAndPassword(auth, email, password);
+
+  const signUp = async (email, password) => {
+    // Clear any stale local state so a new account always starts fresh
+    localStorage.removeItem("fr_profile");
+    localStorage.removeItem("fr_progress");
+    setProfileRaw(DEFAULT_PROFILE);
+    setProgressRaw(DEFAULT_PROGRESS);
+    return createUserWithEmailAndPassword(auth, email, password);
+  };
+
+  const signInWithGoogle = () =>
+    signInWithPopup(auth, new GoogleAuthProvider());
+
+  const signOutUser = async () => {
+    await firebaseSignOut(auth);
+    setProfileRaw(DEFAULT_PROFILE);
+    setProgressRaw(DEFAULT_PROGRESS);
+    setFirebaseUser(null);
+    localStorage.removeItem("fr_profile");
+    localStorage.removeItem("fr_progress");
+  };
+
+  // ── Profile / progress setters ──────────────────────────────────────────
   const setProfile = (updates) => setProfileRaw((p) => ({ ...p, ...updates }));
   const setProgress = (updates) => setProgressRaw((p) => ({ ...p, ...updates }));
 
@@ -80,9 +156,11 @@ export function UserProvider({ children }) {
       ...DEFAULT_PROGRESS,
       startWeight: parseFloat(data.weight) || null,
       programmeStarted: true,
+      walkMult: data.injuries?.includes("easier") ? 1.1 : 1.0,
     });
   };
 
+  // ── Session logic ───────────────────────────────────────────────────────
   const markSessionDone = (weekNum, sessionIdx) => {
     const key = `w${weekNum}-s${sessionIdx}`;
     if (progress.sessionsDone[key]) return null;
@@ -111,10 +189,14 @@ export function UserProvider({ children }) {
     }
 
     const doneDate = new Date().toISOString().split("T")[0];
+    const weekComplete = WEEKS[weekNum - 1]?.sessions.every((_, i) => newSessionsDone[`w${weekNum}-s${i}`]);
+    const nextWeek = weekComplete && weekNum < WEEKS.length ? weekNum + 1 : null;
+
     setProgressRaw((p) => ({
       ...p,
       sessionsDone: { ...p.sessionsDone, [key]: doneDate },
       badges: earnedBadge ? [...p.badges, earnedBadge] : p.badges,
+      currentWeek: nextWeek ? Math.max(p.currentWeek, nextWeek) : p.currentWeek,
     }));
 
     return earnedBadge;
@@ -125,13 +207,26 @@ export function UserProvider({ children }) {
     setProgressRaw((p) => {
       const newSessionsDone = { ...p.sessionsDone };
       delete newSessionsDone[key];
-
       let newBadges = p.badges.filter(b => b.type !== `week_${weekNum}_complete`);
       if (Object.keys(newSessionsDone).length === 0) {
         newBadges = newBadges.filter(b => b.type !== "first_session");
       }
-
       return { ...p, sessionsDone: newSessionsDone, badges: newBadges };
+    });
+  };
+
+  const applyWeekFeedback = (weekNum, feedback) => {
+    setProgressRaw((p) => {
+      const weekFeedback = { ...p.weekFeedback, [`w${weekNum}`]: feedback };
+      let walkMult = p.walkMult ?? 1.0;
+      let runMult = p.runMult ?? 1.0;
+      if (feedback === "too_hard") {
+        walkMult = Math.min(Math.round(walkMult * 1.1 * 100) / 100, 1.3);
+      } else if (feedback === "too_easy") {
+        runMult = Math.min(Math.round(runMult * 1.1 * 100) / 100, 1.3);
+        walkMult = Math.max(Math.round(walkMult * 0.9 * 100) / 100, 0.8);
+      }
+      return { ...p, weekFeedback, walkMult, runMult };
     });
   };
 
@@ -167,19 +262,25 @@ export function UserProvider({ children }) {
     progress.weighIns.some((w) => w.week === progress.currentWeek);
 
   const isUnder18 = parseInt(profile.age) < 18 && parseInt(profile.age) >= 14;
-
   const totalSessions = WEEKS.reduce((acc, w) => acc + w.sessions.length, 0);
   const sessionsCompleted = Object.keys(progress.sessionsDone).length;
 
   return (
     <UserContext.Provider value={{
+      firebaseUser,
+      authLoading: firebaseUser === undefined,
       profile,
       setProfile,
       progress,
       setProgress,
       completeOnboarding,
+      signIn,
+      signUp,
+      signInWithGoogle,
+      signOutUser,
       markSessionDone,
       unmarkSessionDone,
+      applyWeekFeedback,
       isSessionDone,
       getSessionDate,
       getWeekStatus,

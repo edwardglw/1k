@@ -9,6 +9,9 @@ import WeekButton from "../../components/WeekButton";
 import GoalPanel from "../../components/GoalPanel";
 import WeightGraph from "../../components/ui/WeightGraph";
 import WeightLogSheet from "../../components/WeightLogSheet";
+import ShareSheet from "../../components/ShareSheet";
+
+const APP_URL = "https://1k-beta.vercel.app";
 
 const LIFESTYLE_TIPS = [
   { icon: "flame", color: T.color.apricot, bg: T.color.apricotLight, title: "Eat back what you burn", body: "When you run, eat back those calories — all of them. This is a sustainable plan, not a crash diet." },
@@ -49,6 +52,7 @@ export default function Dashboard() {
   const [showGoalPanel, setShowGoalPanel] = useState(false);
   const [showBadge, setShowBadge] = useState(true);
   const [showWeightSheet, setShowWeightSheet] = useState(false);
+  const [shareMsg, setShareMsg] = useState(null);
   const [tutorialStep, setTutorialStep] = useState(0);
   const [tutorialDismissed, setTutorialDismissed] = useState(false);
   const [tutorialFading, setTutorialFading] = useState(false);
@@ -208,26 +212,43 @@ export default function Dashboard() {
             <div style={{
               background: `linear-gradient(135deg, ${T.color.apricotLight} 0%, ${T.color.white} 100%)`,
               borderRadius: T.radius.xl, padding: "12px 14px", marginBottom: 12,
-              display: "flex", alignItems: "center", gap: 12,
               border: `1.5px solid ${T.color.apricot}22`, position: "relative",
               animation: "fadeSlide 0.3s ease",
             }}>
-              <div style={{
-                width: 38, height: 38, borderRadius: T.radius.full, flexShrink: 0,
-                background: T.color.apricot, display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: `0 2px 8px ${T.color.apricot}44`,
-              }}>
-                <Icon type="badge" size={18} color={T.color.white} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0, paddingRight: 20 }}>
-                <div style={{ fontSize: 10, color: T.color.charcoalMuted, textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 700 }}>Latest badge</div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display }}>{badge.label}</div>
-                <div style={{ fontSize: 11, color: T.color.sage, fontWeight: 600, fontStyle: "italic" }}>"{badge.message}"</div>
+              {/* Top row: icon + text + close */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12, paddingRight: 24 }}>
+                <div style={{
+                  width: 38, height: 38, borderRadius: T.radius.full, flexShrink: 0,
+                  background: T.color.apricot, display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: `0 2px 8px ${T.color.apricot}44`,
+                }}>
+                  <Icon type="badge" size={18} color={T.color.white} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 10, color: T.color.charcoalMuted, textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 700 }}>Latest badge</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display }}>{badge.label}</div>
+                  <div style={{ fontSize: 11, color: T.color.sage, fontWeight: 600, fontStyle: "italic" }}>"{badge.message}"</div>
+                </div>
               </div>
               <button onClick={() => setShowBadge(false)} aria-label="Dismiss" style={{
                 background: "none", border: "none", cursor: "pointer", position: "absolute", top: 10, right: 10, padding: 2,
               }}>
                 <Icon type="x" size={14} color={T.color.charcoalMuted} />
+              </button>
+              {/* Share button below message, aligned with text */}
+              <button
+                onClick={() => setShareMsg(`I just earned the "${badge.label}" badge on 1RUN.UK — I'm working towards running my first 1K. ${APP_URL}`)}
+                style={{
+                  marginTop: 10, marginLeft: 50,
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  background: "none",
+                  border: `1.5px solid ${T.color.apricot}`,
+                  borderRadius: T.radius.full,
+                  padding: "5px 12px",
+                  cursor: "pointer",
+                }}>
+                <Icon type="shareNode" size={12} color={T.color.apricot} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: T.color.apricot, fontFamily: T.font.body }}>Share this badge</span>
               </button>
             </div>
           );
@@ -236,7 +257,7 @@ export default function Dashboard() {
         {/* Weeks & Goals */}
         <div style={{ background: T.color.white, borderRadius: T.radius.xl, padding: "14px 14px 16px", marginBottom: 12, boxShadow: "0 1px 4px rgba(59,63,58,0.06)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-            <div style={{ fontSize: 14, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display }}>Your weekly sessions</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display }}>View your weekly sessions</div>
             <div style={{ fontSize: 14, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display }}>Goals & badges</div>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -389,47 +410,7 @@ export default function Dashboard() {
               </div>
             ))}
 
-            {/* Recipes — links pending real URLs */}
-            <div style={{ fontSize: 11, fontWeight: 700, color: T.color.charcoalMuted, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8, marginTop: 10 }}>
-              Quick recipes
-            </div>
-            {[
-              { title: "Banana & oat smoothie", desc: "Quick pre-run fuel — ready in 2 minutes.", time: "2 min", tone: "apricot" },
-              { title: "Chicken & sweet potato bowl", desc: "High-protein post-run recovery meal.", time: "30 min", tone: "sage" },
-              { title: "Spiced lentil soup", desc: "Warm, filling and packed with plant protein.", time: "25 min", tone: "sky" },
-            ].map((r) => {
-              const toneColors = {
-                apricot: { bg: T.color.apricotLight, accent: T.color.apricot, border: T.color.apricot },
-                sage:    { bg: T.color.sageLight,   accent: T.color.moss,    border: T.color.moss },
-                sky:     { bg: T.color.skyLight,     accent: T.color.sky,     border: T.color.sky },
-              };
-              const tc = toneColors[r.tone] || toneColors.sage;
-              return (
-                <div key={r.title} style={{
-                  display: "flex", alignItems: "center", gap: 12,
-                  background: T.color.white,
-                  border: `2px solid ${tc.border}33`,
-                  borderLeft: `4px solid ${tc.border}`,
-                  borderRadius: T.radius.xl, padding: "14px 16px", marginBottom: 8,
-                  boxShadow: `0 2px 8px ${tc.border}14`,
-                }}>
-                  <div style={{
-                    width: 42, height: 42, borderRadius: T.radius.md, flexShrink: 0,
-                    background: tc.bg, display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    <Icon type="utensils" size={18} color={tc.accent} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display, lineHeight: 1.25 }}>{r.title}</div>
-                    <div style={{ fontSize: 12, color: T.color.charcoalMuted, marginTop: 2, fontWeight: 500 }}>{r.desc}</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
-                      <Icon type="clock" size={11} color={tc.accent} />
-                      <span style={{ fontSize: 11, fontWeight: 700, color: tc.accent }}>{r.time}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {/* Quick recipes — commented out until real URLs are available */}
           </>
         )}
       </div>
@@ -444,6 +425,8 @@ export default function Dashboard() {
           onDismiss={() => setShowWeightSheet(false)}
         />
       )}
+
+      {shareMsg && <ShareSheet message={shareMsg} onClose={() => setShareMsg(null)} />}
     </div>
   );
 }

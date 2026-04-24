@@ -272,6 +272,39 @@
 }
 
 /* ── FOOTER ── */
+/* ── HEALTH DISCLAIMER ── */
+.lp-disclaimer {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  border-top: 1px solid rgba(250,247,242,0.08);
+}
+.lp-disclaimer-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: rgba(250,247,242,0.6);
+}
+.lp-disclaimer-body { flex: 1; }
+.lp-disclaimer-heading {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(250,247,242,0.75);
+  margin: 0 0 8px;
+}
+.lp-disclaimer-text {
+  font-size: 12px;
+  line-height: 1.75;
+  color: rgba(250,247,242,0.65);
+  font-weight: 500;
+  margin: 0 0 6px;
+}
+.lp-disclaimer-text:last-child { margin-bottom: 0; }
+
 .lp-footer {
   border-top: 1px solid rgba(250,247,242,0.10);
   padding: 28px 24px;
