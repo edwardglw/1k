@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { T } from "../tokens";
 import Icon from "./ui/Icon";
 
@@ -20,6 +21,12 @@ const BENEFITS = [
 ];
 
 export default function BenefitsModal({ onClose }) {
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1000,

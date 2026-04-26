@@ -3,9 +3,25 @@
 ## What this is
 A mobile-first React PWA for beginner runners. 6-week walk-to-run programme with integrated weekly eating habits. Target: run a first 1K. Built with Vite + React + React Router. Backend: Firebase (Firestore + Auth). Deployed at https://1k-beta.vercel.app · GitHub: https://github.com/edwardglw/1k
 
+## Current state (25 Apr 2026)
+The previous to-do list (former `note.txt` items 2–10) is fully shipped: WeekFeelingSheet, recipe-card placeholders, eating detail screen, deploy, PWA basics, Firebase auth, empty-state copy, animations.
+
+Active work: **polish / UX pass.** See `../TODO.md` for the live list (10 items: empty states, page transitions, loading/error states, focus rings, touch targets, end-to-end verify).
+
+### Recent changes worth knowing
+- **Brand audit**: all user-facing copy in `src/` is `1RUN.UK`. The only stale "FirstRun" mention was in this file (cleared). Page `<title>`, `package.json` name, marketing.html: clean.
+- **Weight is optional in onboarding.** `ScreenWeight.jsx` label reads "Current weight (optional)" with a clarifying subhead. `canAdvance()` for step 3 in `onboarding/index.jsx` still requires weight + targetWeight to advance — this should probably loosen to allow skipping (currently a user who wants to skip has to be under 18 to bypass the gate). **Open question.**
+- **Weight chart already uses onboarding `startWeight` as Week 1 baseline** — `WeightGraph.jsx` plots it as an open dot (white fill, moss stroke), distinct from weigh-ins. Dashboard `index.jsx` line 310 hides the entire Weight Journey card when `progress.startWeight` is null.
+- **Hero branding parked**: a new logo is being designed. Once the asset lands, apply consistently across App header (`App.jsx`), `SignIn.jsx`, `SignUp.jsx`, Profile footer brand (`profile/index.jsx`), and Landing nav (`landing/Landing.css` `.lp-logo` + `.lp-footer-brand`). The current pattern is `1RUN` in dominant colour + `.UK` smaller in sage.
+
+### Gotchas
+- **`onboarding/steps/ScreenWelcome.jsx` is dead code.** Not imported in `onboarding/index.jsx`. Don't edit it expecting changes to render. Safe to delete if you want to tidy.
+- The onboarding flow is 6 steps (Ambition, Activity, AboutYou, Weight, Injuries, Reward) plus a `ScreenPlanReady` summary — there is **no welcome screen** between Landing and step 0.
+
 ## Source of truth
 - `../prd.md` — product decisions, features, PRD open questions
-- `../firstrun-dashboard.jsx` and `../firstrun-onboarding.jsx` — original visual prototypes
+- `../TODO.md` — active polish/UX backlog
+- `../firstrun-dashboard.jsx` and `../firstrun-onboarding.jsx` — legacy visual prototypes from the old "FirstRun" name. Visual reference only; product is branded **1RUN.UK** everywhere user-facing.
 
 ## Dev
 ```
@@ -36,6 +52,9 @@ Route guards in `App.jsx` enforce auth + `programmeStarted` before showing app s
 - `UserContext` handles `onAuthStateChanged`, loads Firestore on sign-in, syncs on every profile/progress change
 - Firestore doc: `users/{uid}` with `{ profile, progress }` fields
 - localStorage kept as offline cache
+- **Firestore rules**: auth required; users can only read/write their own doc. Not in test mode.
+- **Vercel env vars**: all `VITE_FIREBASE_*` vars set in Vercel project settings (not in repo — `.env.local` is gitignored)
+- **Authorised domains**: `localhost` and `1k-beta.vercel.app` both added in Firebase Auth settings
 
 ## Component locations
 ```
@@ -64,6 +83,7 @@ src/
     onboarding/index.jsx      — 6 steps + PlanReady; completeOnboarding() → /dashboard
     onboarding/steps/         — ScreenAmbition, ScreenActivity, ScreenAboutYou, ScreenWeight,
                                  ScreenInjuries, ScreenReward, ScreenPlanReady
+                                 (ScreenWelcome.jsx exists but is NOT imported — dead code)
     auth/
       SignIn.jsx              — email/password + Google; → /dashboard
       SignUp.jsx              — email/password only; → /onboarding
@@ -109,3 +129,7 @@ After each week: WeekFeelingSheet → `applyWeekFeedback(weekNum, feedback)` upd
 - Active minutes = `sessionsCompleted * 20` (placeholder)
 - Imperial units not implemented
 - Calorie formula needs clinical validation before launch
+- Weight is **optional** in onboarding; if skipped, the dashboard Weight Journey card hides entirely (no fallback empty state). Calorie allowance also depends on weight, so users who skip won't see an allowance card either.
+- WeightGraph uses `progress.startWeight` (set from onboarding `data.weight`) as the Week 1 baseline — open dot, distinct from weigh-in dots.
+- Hero branding overhaul parked pending new logo. Apply across App header / SignIn / SignUp / Profile / Landing once asset is ready.
+- `ScreenWelcome.jsx` is orphan code — not wired into the onboarding flow. Don't edit it.

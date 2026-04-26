@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { T } from "../tokens";
 import Icon from "./ui/Icon";
 
@@ -15,7 +15,7 @@ const OPTIONS = [
     icon: "flame",
     color: RED,
     bg: RED_BG,
-    confirmation: "We'll extend your running intervals and shorten walking recovery. Keep building on that.",
+    confirmation: "Your running intervals will get longer and walking recovery shorter. Next week steps up.",
   },
   {
     value: "about_right",
@@ -41,6 +41,12 @@ export default function WeekFeelingSheet({ weekNum, onSubmit }) {
   const [selected, setSelected] = useState(null);
   const opt = OPTIONS.find(o => o.value === selected);
 
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape" && selected) onSubmit(selected); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [selected, onSubmit]);
+
   return (
     <>
       <div style={{
@@ -54,7 +60,7 @@ export default function WeekFeelingSheet({ weekNum, onSubmit }) {
         background: T.color.white,
         borderRadius: `${T.radius.xl}px ${T.radius.xl}px 0 0`,
         padding: "20px 24px 48px",
-        zIndex: 201, animation: "slideUp 0.35s ease",
+        zIndex: 201, animation: "slideUp 0.3s ease",
         fontFamily: T.font.body,
       }}>
         <div style={{ width: 36, height: 4, background: T.color.ivoryTone, borderRadius: 2, margin: "0 auto 24px" }} />

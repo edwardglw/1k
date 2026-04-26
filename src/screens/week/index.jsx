@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { go } from "../../lib/navigate";
 import { T } from "../../tokens";
 import { WEEKS, formatIntervals } from "../../data/programme";
 import { useUser } from "../../context/UserContext";
@@ -65,6 +66,18 @@ export default function WeekView() {
 
   const prevWeekComplete = weekNum === 1 || getWeekStatus(weekNum - 1) === "complete";
 
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key !== "Escape") return;
+      if (pendingSession) setPendingSession(null);
+      else if (pendingUnmark) setPendingUnmark(null);
+      else if (showWeekLocked) setShowWeekLocked(false);
+      else if (shareMsg) setShareMsg(null);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [pendingSession, pendingUnmark, showWeekLocked, shareMsg]);
+
   if (!week) {
     navigate("/dashboard", { replace: true });
     return null;
@@ -99,12 +112,19 @@ export default function WeekView() {
         @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media (min-width: 768px) {
+          .wv-sticky { max-width: 800px !important; }
+          .wv-wrap { max-width: 800px !important; }
+          .wv-columns { display: flex; gap: 20px; align-items: flex-start; }
+          .wv-trophy-col { width: 300px; flex-shrink: 0; order: 2; }
+          .wv-sessions-col { flex: 1; min-width: 0; order: 1; }
+        }
       `}</style>
 
       <AtmosphericBG />
 
       {/* ── Sticky header — white card peeling over scroll content ── */}
-      <div style={{
+      <div className="wv-sticky" style={{
         position: "sticky", top: 0, zIndex: 10,
         background: T.color.white,
         borderRadius: "0 0 24px 24px",
@@ -115,7 +135,7 @@ export default function WeekView() {
         {/* Back + phase row */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
           <button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => go(navigate, "/dashboard")}
             aria-label="Back"
             style={{
               background: T.color.ivory, border: "none", borderRadius: T.radius.full,
@@ -147,7 +167,7 @@ export default function WeekView() {
                 status={getWeekStatus(w.num)}
                 isGoal={false}
                 isSelected={w.num === weekNum}
-                onClick={() => navigate(`/week/${w.num}`)}
+                onClick={() => go(navigate, `/week/${w.num}`)}
               />
             ))}
             <WeekButton
@@ -172,7 +192,7 @@ export default function WeekView() {
       </div>
 
       {/* ── Scrollable content ── */}
-      <div style={{ maxWidth: 430, margin: "0 auto", position: "relative", zIndex: 1, padding: "20px 20px 48px" }}>
+      <div className="wv-wrap" style={{ maxWidth: 430, margin: "0 auto", position: "relative", zIndex: 1, padding: "20px 20px 48px" }}>
 
         {/* Goal panel */}
         {showGoal && (
@@ -186,6 +206,7 @@ export default function WeekView() {
           </div>
         )}
 
+        <div className="wv-columns"><div className="wv-trophy-col">
         {/* ── Trophy shelf — top of scroll ── */}
         <div style={{
           background: T.color.white, borderRadius: T.radius.xl,
@@ -265,7 +286,7 @@ export default function WeekView() {
                       onClick={() => setShareMsg(`${SESSION_SHARE_MSGS[i] ?? `I just completed session ${i + 1} of Week`} ${weekNum} on 1RUN.UK — my free 6-week beginner running programme. Every step is getting me closer to my first 1K. ${APP_URL}`)}
                       aria-label="Share"
                       style={{ background: "none", border: "none", padding: 6, cursor: "pointer", flexShrink: 0, display: "flex" }}>
-                      <Icon type="shareNode" size={16} color={T.color.charcoalMuted} />
+                      <Icon type="shareNode" size={16} color={T.color.moss} />
                     </button>
                   </div>
                 );
@@ -300,7 +321,7 @@ export default function WeekView() {
                     onClick={() => setShareMsg(`I just completed Week ${weekNum} of my 6-week running plan on 1RUN.UK. I'm building up to my first 1K — one week at a time. ${APP_URL}`)}
                     aria-label="Share"
                     style={{ background: "none", border: "none", padding: 6, cursor: "pointer", flexShrink: 0, display: "flex" }}>
-                    <Icon type="shareNode" size={16} color={T.color.charcoalMuted} />
+                    <Icon type="shareNode" size={16} color={T.color.moss} />
                   </button>
                 </div>
               )}
@@ -326,6 +347,7 @@ export default function WeekView() {
           )}
         </div>
 
+        </div><div className="wv-sessions-col">
         {/* ── Sessions ── */}
         <div style={{
           fontSize: 11, fontWeight: 700, color: T.color.charcoalMuted,
@@ -334,10 +356,23 @@ export default function WeekView() {
           This week's sessions
         </div>
 
+        {weekNum === 1 && doneCount === 0 && (
+          <div style={{
+            background: T.color.sageLight, borderRadius: T.radius.lg,
+            padding: "12px 16px", marginBottom: 12,
+            border: `1.5px solid ${T.color.sage}44`,
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: T.color.moss, lineHeight: 1.5 }}>
+              Take it slow. Walking is fine.
+            </div>
+          </div>
+        )}
+
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {week.sessions.map((s, i) => {
             const done = doneSessions[i];
             const dateStr = getSessionDate(weekNum, i);
+            const isNext = !done && doneSessions.slice(0, i).every(Boolean);
             return (
               <div
                 key={i}
@@ -420,19 +455,22 @@ export default function WeekView() {
                 {/* Mark as done */}
                 {!done && (
                   <button
-                    onClick={() => prevWeekComplete ? setPendingSession({ sessionIdx: i }) : setShowWeekLocked(true)}
+                    onClick={() => {
+                      if (!isNext) return;
+                      prevWeekComplete ? setPendingSession({ sessionIdx: i }) : setShowWeekLocked(true);
+                    }}
                     style={{
                       width: "100%", padding: "13px", border: "none", borderRadius: T.radius.lg,
                       fontSize: 14, fontWeight: 800, fontFamily: T.font.display,
-                      background: prevWeekComplete
+                      background: isNext && prevWeekComplete
                         ? `linear-gradient(135deg, ${T.color.moss} 0%, ${T.color.sage} 100%)`
                         : T.color.ivoryDark,
-                      color: prevWeekComplete ? T.color.white : T.color.charcoalMuted,
-                      boxShadow: prevWeekComplete ? `0 4px 16px ${T.color.moss}44` : "none",
-                      cursor: "pointer",
+                      color: isNext && prevWeekComplete ? T.color.white : T.color.charcoalMuted,
+                      boxShadow: isNext && prevWeekComplete ? `0 4px 16px ${T.color.moss}44` : "none",
+                      cursor: isNext ? "pointer" : "default",
                       display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                     }}>
-                    <Icon type="check" size={15} color={prevWeekComplete ? T.color.white : T.color.charcoalMuted} />
+                    <Icon type="check" size={15} color={isNext && prevWeekComplete ? T.color.white : T.color.charcoalMuted} />
                     Mark as done
                   </button>
                 )}
@@ -440,6 +478,7 @@ export default function WeekView() {
             );
           })}
         </div>
+        </div></div>{/* end wv-sessions-col + wv-columns */}
       </div>
 
       {pendingSession && (
@@ -551,7 +590,7 @@ export default function WeekView() {
               Finish all three sessions in Week {weekNum - 1} before moving on.
             </div>
             <button
-              onClick={() => { setShowWeekLocked(false); navigate(`/week/${weekNum - 1}`); }}
+              onClick={() => { setShowWeekLocked(false); go(navigate, `/week/${weekNum - 1}`); }}
               style={{
                 width: "100%", padding: "15px", border: "none", borderRadius: T.radius.lg,
                 fontSize: 15, fontWeight: 800, fontFamily: T.font.display,

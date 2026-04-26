@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { T } from "../tokens";
 import Icon from "./ui/Icon";
 
@@ -34,6 +34,12 @@ const SOCIAL = [
 export default function ShareSheet({ message, onClose }) {
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+
   const copyMsg = async () => {
     try {
       await navigator.clipboard.writeText(message);
@@ -44,7 +50,7 @@ export default function ShareSheet({ message, onClose }) {
 
   return (
     <>
-      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(59,63,58,0.45)", zIndex: 200 }} />
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(59,63,58,0.45)", backdropFilter: "blur(4px)", zIndex: 200 }} />
       <div style={{
         position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
         width: "100%", maxWidth: 430,
@@ -52,7 +58,7 @@ export default function ShareSheet({ message, onClose }) {
         padding: "24px 20px 36px",
         zIndex: 201,
         boxShadow: "0 -4px 24px rgba(59,63,58,0.14)",
-        animation: "slideUp 0.2s ease",
+        animation: "slideUp 0.3s ease",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <div style={{ fontSize: 16, fontWeight: 900, color: T.color.charcoal, fontFamily: T.font.display }}>

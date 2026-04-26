@@ -245,11 +245,13 @@ export function UserProvider({ children }) {
   const getWeekStatus = (weekNum) => {
     const week = WEEKS[weekNum - 1];
     if (!week) return "locked";
-    const doneSessions = week.sessions.filter((_, i) => isSessionDone(weekNum, i)).length;
-    if (doneSessions === week.sessions.length) return "complete";
-    if (weekNum === progress.currentWeek) return "current";
-    if (weekNum < progress.currentWeek) return "complete";
-    return "locked";
+    const allDone = week.sessions.every((_, i) => isSessionDone(weekNum, i));
+    if (allDone) return "complete";
+    // Current = first incomplete week where all prior weeks are fully done
+    const priorComplete = WEEKS.slice(0, weekNum - 1).every((w, i) =>
+      w.sessions.every((_, j) => isSessionDone(i + 1, j))
+    );
+    return priorComplete ? "current" : "locked";
   };
 
   const logWeighIn = (value) => {

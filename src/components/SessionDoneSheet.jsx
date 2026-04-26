@@ -1,7 +1,14 @@
+import { useEffect } from "react";
 import { T } from "../tokens";
 import Icon from "./ui/Icon";
 
 export default function SessionDoneSheet({ session, weekNum, onConfirm, onDismiss }) {
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") onDismiss(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onDismiss]);
+
   return (
     <>
       <div
@@ -61,10 +68,10 @@ export default function SessionDoneSheet({ session, weekNum, onConfirm, onDismis
           onClick={onConfirm}
           style={{
             width: "100%", padding: "16px", borderRadius: T.radius.lg, border: "none",
-            background: `linear-gradient(135deg, ${T.color.apricot}, #D4875A)`,
+            background: `linear-gradient(135deg, ${T.color.moss}, ${T.color.sage})`,
             color: T.color.white, fontSize: 16, fontWeight: 800,
             fontFamily: T.font.display, cursor: "pointer",
-            boxShadow: `0 6px 20px ${T.color.apricot}44`,
+            boxShadow: `0 6px 20px ${T.color.moss}44`,
             marginBottom: 12,
           }}>
           Mark as done

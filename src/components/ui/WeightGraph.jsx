@@ -36,6 +36,8 @@ export default function WeightGraph({ startWeight, targetWeight, weighIns, total
       <path d={targetLine} stroke={T.color.sage} strokeWidth="1.5" strokeDasharray="5 3" fill="none" opacity="0.4" />
       <path d={actualPts} stroke={T.color.moss} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx={xS(0)} cy={yS(startWeight)} r="4" fill={T.color.white} stroke={T.color.moss} strokeWidth="2.5" />
+      <rect x={xS(0) + 8} y={yS(startWeight) - 9} width="52" height="14" rx="4" fill={T.color.moss} opacity="0.12" />
+      <text x={xS(0) + 34} y={yS(startWeight) + 1} textAnchor="middle" fill={T.color.moss} fontSize="8" fontFamily={T.font.body} fontWeight="700">Start</text>
       {weighIns.map((wi) => (
         <circle key={wi.week} cx={xS(wi.week - 1)} cy={yS(wi.value)} r="4" fill={T.color.white} stroke={T.color.moss} strokeWidth="2.5" />
       ))}

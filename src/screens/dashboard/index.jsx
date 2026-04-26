@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { go } from "../../lib/navigate";
 import { T } from "../../tokens";
 import { WEEKS } from "../../data/programme";
 import { useUser } from "../../context/UserContext";
@@ -102,11 +103,18 @@ export default function Dashboard() {
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
         @keyframes fadeSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes tutorialOut { from { opacity: 1; transform: translateY(0); max-height: 200px; } to { opacity: 0; transform: translateY(-6px); max-height: 0; margin-bottom: 0; padding: 0; } }
+        @media (min-width: 768px) {
+          .db-wrap { max-width: 800px !important; }
+          .db-flex-split { display: flex; gap: 12px; align-items: flex-start; }
+          .db-split-left { flex: 1; min-width: 0; margin-bottom: 0 !important; }
+          .db-split-right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+          .db-split-right > * { margin-bottom: 0 !important; }
+        }
       `}</style>
 
       <AtmosphericBG />
 
-      <div style={{ maxWidth: 430, margin: "0 auto", position: "relative", zIndex: 1 }}>
+      <div className="db-wrap" style={{ maxWidth: 430, margin: "0 auto", position: "relative", zIndex: 1 }}>
 
       {/* Header */}
       <div style={{ padding: "24px 20px 14px" }}>
@@ -190,7 +198,7 @@ export default function Dashboard() {
                     </button>
                   )}
                   <button
-                    onClick={() => isLast ? dismissTutorial() : setTutorialStep(t => t + 1)}
+                    onClick={() => isLast ? navigate("/week/1") : setTutorialStep(t => t + 1)}
                     style={{
                       background: T.color.moss, border: "none", borderRadius: T.radius.full,
                       padding: "6px 14px", cursor: "pointer",
@@ -242,13 +250,13 @@ export default function Dashboard() {
                   marginTop: 10, marginLeft: 50,
                   display: "inline-flex", alignItems: "center", gap: 6,
                   background: "none",
-                  border: `1.5px solid ${T.color.apricot}`,
+                  border: `1.5px solid ${T.color.moss}`,
                   borderRadius: T.radius.full,
                   padding: "5px 12px",
                   cursor: "pointer",
                 }}>
-                <Icon type="shareNode" size={12} color={T.color.apricot} />
-                <span style={{ fontSize: 12, fontWeight: 700, color: T.color.apricot, fontFamily: T.font.body }}>Share this badge</span>
+                <Icon type="shareNode" size={12} color={T.color.moss} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: T.color.moss, fontFamily: T.font.body }}>Share this badge</span>
               </button>
             </div>
           );
@@ -263,7 +271,7 @@ export default function Dashboard() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             {WEEKS.map((w) => (
               <WeekButton key={w.num} num={w.num} status={getWeekStatus(w.num)} isGoal={false}
-                isSelected={false} onClick={() => navigate(`/week/${w.num}`)} />
+                isSelected={false} onClick={() => go(navigate, `/week/${w.num}`)} />
             ))}
             <WeekButton num={7} status="goal" isGoal isSelected={showGoalPanel} onClick={() => setShowGoalPanel(g => !g)} />
           </div>
@@ -306,9 +314,10 @@ export default function Dashboard() {
           ))}
         </div>
 
+        <div className="db-flex-split">
         {/* Weight Journey + Calories */}
         {!isUnder18 && progress.startWeight && targetWeight && (
-          <div style={{ background: T.color.white, borderRadius: T.radius.xl, padding: "16px 14px 0", marginBottom: 12, boxShadow: "0 1px 4px rgba(59,63,58,0.06)", overflow: "hidden" }}>
+          <div className="db-split-left" style={{ background: T.color.white, borderRadius: T.radius.xl, padding: "16px 14px 0", marginBottom: 12, boxShadow: "0 1px 4px rgba(59,63,58,0.06)", overflow: "hidden" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display }}>Weight Journey</div>
@@ -322,18 +331,6 @@ export default function Dashboard() {
                     {latestWeighIn < progress.startWeight ? "−" : "+"}{Math.abs(progress.startWeight - latestWeighIn).toFixed(1)} kg
                   </div>
                 )}
-                {!hasWeighedInThisWeek() && (
-                  <button
-                    onClick={() => setShowWeightSheet(true)}
-                    style={{
-                      background: T.color.apricot, border: "none", borderRadius: T.radius.full,
-                      padding: "8px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
-                      boxShadow: `0 2px 6px ${T.color.apricot}44`,
-                    }}>
-                    <Icon type="plus" size={14} color={T.color.white} />
-                    <span style={{ fontSize: 12, fontWeight: 700, color: T.color.white }}>Log</span>
-                  </button>
-                )}
               </div>
             </div>
             <WeightGraph
@@ -341,6 +338,21 @@ export default function Dashboard() {
               targetWeight={targetWeight}
               weighIns={progress.weighIns}
             />
+            {!hasWeighedInThisWeek() && (
+              <button
+                onClick={() => setShowWeightSheet(true)}
+                style={{
+                  width: "100%", margin: "8px 0 12px",
+                  padding: "12px 14px", border: "none",
+                  background: `linear-gradient(135deg, ${T.color.moss}, ${T.color.sage})`,
+                  borderRadius: T.radius.lg,
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                  boxShadow: `0 4px 12px ${T.color.moss}44`,
+                }}>
+                <Icon type="plus" size={15} color={T.color.white} />
+                <span style={{ fontSize: 13, fontWeight: 800, color: T.color.white, fontFamily: T.font.display }}>Log this week's weight</span>
+              </button>
+            )}
             <div style={{
               background: T.color.ivory, padding: "12px 14px", margin: "0 -14px",
               borderTop: `1px solid ${T.color.ivoryDark}`,
@@ -362,7 +374,7 @@ export default function Dashboard() {
 
         {/* Healthy lifestyle section */}
         {currentWeekData && (
-          <>
+          <div className="db-split-right">
             <div style={{ fontSize: 11, fontWeight: 700, color: T.color.charcoalMuted, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8 }}>
               Healthy lifestyle
             </div>
@@ -411,8 +423,9 @@ export default function Dashboard() {
             ))}
 
             {/* Quick recipes — commented out until real URLs are available */}
-          </>
+          </div>
         )}
+        </div>
       </div>
       </div>
 

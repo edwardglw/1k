@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { T } from "../tokens";
 import Icon from "./ui/Icon";
 
 export default function WeightLogSheet({ startWeight, targetWeight, latestWeighIn, onSave, onDismiss }) {
   const placeholder = latestWeighIn ?? startWeight ?? "";
   const [value, setValue] = useState(placeholder ? String(placeholder) : "");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") onDismiss(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onDismiss]);
 
   const numVal = parseFloat(value);
   const valid = !isNaN(numVal) && numVal > 20 && numVal < 300;
@@ -101,8 +108,12 @@ export default function WeightLogSheet({ startWeight, targetWeight, latestWeighI
         </div>
 
         <button
-          onClick={() => valid && onSave(numVal)}
-          disabled={!valid}
+          onClick={() => {
+            if (!valid || saving) return;
+            setSaving(true);
+            setTimeout(() => onSave(numVal), 300);
+          }}
+          disabled={!valid || saving}
           style={{
             width: "100%", padding: "16px", borderRadius: T.radius.lg, border: "none",
             background: valid
@@ -114,8 +125,9 @@ export default function WeightLogSheet({ startWeight, targetWeight, latestWeighI
             boxShadow: valid ? `0 6px 20px ${T.color.moss}44` : "none",
             transition: "all 0.2s ease",
             marginBottom: 12,
+            opacity: saving ? 0.8 : 1,
           }}>
-          Save
+          {saving ? "Saving…" : "Save"}
         </button>
 
         <button

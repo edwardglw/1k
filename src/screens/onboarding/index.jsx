@@ -47,7 +47,7 @@ export default function Onboarding() {
       case 0: return !!data.ambition;
       case 1: return !!data.activity;
       case 2: return !!data.displayName && !!data.age && !!data.gender && !!data.height;
-      case 3: return isUnder18 || (!!data.weight && data.targetWeight !== "");
+      case 3: return isUnder18 || !data.weight || data.targetWeight !== "";
       case 4: return data.injuries.length > 0;
       case 5: return true;
       default: return false;

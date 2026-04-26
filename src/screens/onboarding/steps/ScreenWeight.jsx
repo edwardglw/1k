@@ -53,11 +53,11 @@ export default function ScreenWeight({ data, setData }) {
         Your weight & 6-week goal
       </div>
       <div style={{ fontSize: 14, color: "var(--sub-col)", marginBottom: 24, lineHeight: 1.5 }}>
-        Small, steady progress is the goal. Be kind to yourself.
+        Small, steady progress is the goal. Be kind to yourself. Both fields are optional — skip if you'd rather not track weight.
       </div>
 
       <div style={{ marginBottom: 14 }}>
-        <Select label="Current weight" value={data.weight} onChange={(v) => setData({ ...data, weight: v })}
+        <Select label="Current weight (optional)" value={data.weight} onChange={(v) => setData({ ...data, weight: v })}
           options={buildWeightOptions()} placeholder="Select your weight" />
       </div>
       <div style={{ marginBottom: 16 }}>
