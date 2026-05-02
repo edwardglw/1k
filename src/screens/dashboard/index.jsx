@@ -48,8 +48,13 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const onProfile = location.pathname === "/profile";
-  const { profile, progress, getWeekStatus, isSessionDone, logWeighIn, hasWeighedInThisWeek, totalSessions, sessionsCompleted, isUnder18 } = useUser();
+  const { profile, progress, setProgress, getWeekStatus, isSessionDone, logWeighIn, hasWeighedInThisWeek, totalSessions, sessionsCompleted, isUnder18 } = useUser();
 
+  // Promo banner: show on first dashboard visit; after dismiss, re-show whenever a new badge is earned
+  const lastBadgeAt = progress.badges?.length > 0
+    ? Math.max(...progress.badges.map((b) => b.earnedAt || 0))
+    : 0;
+  const showPromoBanner = !progress.bannerDismissedAt || lastBadgeAt > progress.bannerDismissedAt;
   const [showGoalPanel, setShowGoalPanel] = useState(false);
   const [showBadge, setShowBadge] = useState(true);
   const [showWeightSheet, setShowWeightSheet] = useState(false);
@@ -161,8 +166,9 @@ export default function Dashboard() {
               animation: tutorialFading ? "tutorialOut 0.22s ease forwards" : "fadeSlide 0.3s ease",
             }}>
               <button onClick={dismissTutorial} aria-label="Dismiss" style={{
-                position: "absolute", top: 10, right: 10,
-                background: "none", border: "none", cursor: "pointer", padding: 4,
+                position: "absolute", top: 0, right: 0,
+                background: "none", border: "none", cursor: "pointer", padding: 14,
+                minWidth: 44, minHeight: 44,
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
                 <Icon type="x" size={14} color={T.color.charcoalMuted} />
@@ -239,7 +245,10 @@ export default function Dashboard() {
                 </div>
               </div>
               <button onClick={() => setShowBadge(false)} aria-label="Dismiss" style={{
-                background: "none", border: "none", cursor: "pointer", position: "absolute", top: 10, right: 10, padding: 2,
+                background: "none", border: "none", cursor: "pointer",
+                position: "absolute", top: 0, right: 0, padding: 14,
+                minWidth: 44, minHeight: 44,
+                display: "flex", alignItems: "center", justifyContent: "center",
               }}>
                 <Icon type="x" size={14} color={T.color.charcoalMuted} />
               </button>
@@ -313,6 +322,70 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
+
+        {/* T-shirt promo banner */}
+        {showPromoBanner && (
+          <div style={{
+            borderRadius: T.radius.xl,
+            border: `1.5px solid ${T.color.sageTone}`,
+            boxShadow: "0 2px 8px rgba(74,103,65,0.10)",
+            marginBottom: 12,
+            display: "flex",
+            alignItems: "stretch",
+            overflow: "hidden",
+            position: "relative",
+            animation: "fadeSlide 0.3s ease",
+            background: `linear-gradient(120deg, ${T.color.sageLight} 0%, ${T.color.ivory} 55%, ${T.color.apricotLight} 100%)`,
+          }}>
+            {/* Photo — 4:3 ratio, full height */}
+            <div style={{
+              width: 200, flexShrink: 0, alignSelf: "stretch",
+              background: `linear-gradient(145deg, ${T.color.mossDeep}, ${T.color.sage})`,
+            }} />
+            {/* Content */}
+            <div style={{ flex: 1, padding: "14px 40px 14px 14px", display: "flex", flexDirection: "column", gap: 4, background: `linear-gradient(135deg, ${T.color.sageLight} 0%, ${T.color.ivory} 50%, ${T.color.apricotLight} 100%)` }}>
+              <div style={{
+                display: "inline-flex", alignSelf: "flex-start",
+                background: T.color.apricotLight,
+                borderRadius: T.radius.full,
+                padding: "3px 10px",
+                fontSize: 10, fontWeight: 800, color: T.color.apricot,
+                letterSpacing: 0.5, fontFamily: T.font.body,
+              }}>NEW DROP</div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: T.color.charcoal, fontFamily: T.font.display, lineHeight: 1.2 }}>
+                1RUN.UK T-Shirt
+              </div>
+              <div style={{ fontSize: 12, color: T.color.charcoalMuted, fontFamily: T.font.body }}>
+                Limited edition
+              </div>
+              <button style={{
+                alignSelf: "flex-start",
+                marginTop: 4,
+                background: T.color.moss,
+                border: "none",
+                borderRadius: T.radius.full,
+                padding: "8px 16px",
+                cursor: "pointer",
+                fontSize: 13, fontWeight: 800, color: T.color.white,
+                fontFamily: T.font.display,
+              }}>
+                Shop now →
+              </button>
+            </div>
+            {/* Dismiss */}
+            <button
+              onClick={() => setProgress({ bannerDismissedAt: Date.now() })}
+              aria-label="Dismiss"
+              style={{
+                position: "absolute", top: 0, right: 0,
+                background: "none", border: "none", cursor: "pointer",
+                padding: 14, minWidth: 44, minHeight: 44,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+              <Icon type="x" size={13} color={T.color.charcoalMuted} />
+            </button>
+          </div>
+        )}
 
         <div className="db-flex-split">
         {/* Weight Journey + Calories */}

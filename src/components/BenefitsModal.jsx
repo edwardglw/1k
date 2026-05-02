@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { T } from "../tokens";
 import Icon from "./ui/Icon";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 const BENEFITS = [
   {
@@ -21,6 +22,9 @@ const BENEFITS = [
 ];
 
 export default function BenefitsModal({ onClose }) {
+  const sheetRef = useRef(null);
+  useFocusTrap(sheetRef);
+
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", handler);
@@ -35,6 +39,10 @@ export default function BenefitsModal({ onClose }) {
       animation: "fadeIn 0.25s ease",
     }} onClick={onClose}>
       <div
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Why 1RUN.UK?"
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 430,

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { T } from "../tokens";
 import Icon from "./ui/Icon";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 const RED    = "#C0392B";
 const RED_BG = "#FDEAEA";
@@ -40,6 +41,8 @@ const OPTIONS = [
 export default function WeekFeelingSheet({ weekNum, onSubmit }) {
   const [selected, setSelected] = useState(null);
   const opt = OPTIONS.find(o => o.value === selected);
+  const sheetRef = useRef(null);
+  useFocusTrap(sheetRef);
 
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape" && selected) onSubmit(selected); };
@@ -54,7 +57,12 @@ export default function WeekFeelingSheet({ weekNum, onSubmit }) {
         background: "rgba(59,63,58,0.45)", backdropFilter: "blur(4px)",
         zIndex: 200, animation: "fadeIn 0.2s ease",
       }} />
-      <div style={{
+      <div
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`How did week ${weekNum} feel?`}
+        style={{
         position: "fixed", bottom: 0, left: 0, right: 0,
         maxWidth: 430, margin: "0 auto",
         background: T.color.white,

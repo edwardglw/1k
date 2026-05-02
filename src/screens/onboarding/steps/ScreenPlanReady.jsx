@@ -117,15 +117,19 @@ export default function ScreenPlanReady({ data, onEdit }) {
         <SummaryRow icon="user" iconColor={T.color.sage} label="About you"
           value={[data.displayName, data.age ? `${data.age} yrs` : null, data.gender, data.height ? `${data.height} cm` : null].filter(Boolean).join(" · ") || "Not answered yet"}
           onEdit={() => onEdit(2)} />
-        {!isUnder18 && (
+        {!isUnder18 && data.weight && (
           <SummaryRow icon="scale" iconColor={T.color.sage} label="Weight & goal"
             value={data.targetWeight === "0"
-              ? `${data.weight || "—"} kg · maintain`
-              : `${data.weight || "—"} kg → ${targetAbs} kg`}
-            subValue={`${allowance} kcal / day`}
+              ? `${data.weight} kg · maintain`
+              : data.targetWeight !== ""
+                ? `${data.weight} kg → ${targetAbs} kg`
+                : `${data.weight} kg · no goal set`}
+            subValue={data.targetWeight !== "" ? `${allowance} kcal / day` : null}
             impact={data.targetWeight === "0"
               ? "Move more, feel better — this is your number to fuel that."
-              : "A realistic, steady target. You can absolutely do this in 6 weeks."}
+              : data.targetWeight !== ""
+                ? "A realistic, steady target. You can absolutely do this in 6 weeks."
+                : null}
             onEdit={() => onEdit(3)} />
         )}
         <SummaryRow icon="heart" iconColor={needsEasier ? T.color.sky : T.color.sage}

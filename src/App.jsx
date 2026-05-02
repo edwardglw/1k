@@ -20,8 +20,34 @@ function DevSeed() {
   return null;
 }
 
+function SyncErrorBanner({ message, onDismiss }) {
+  return (
+    <div role="status" aria-live="polite" style={{
+      position: "fixed", top: 0, left: 0, right: 0,
+      zIndex: 9999,
+      background: T.color.apricotLight,
+      borderBottom: `1.5px solid ${T.color.apricot}`,
+      padding: "10px 16px",
+      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+      fontFamily: "'Nunito', sans-serif",
+      boxShadow: "0 2px 8px rgba(232,168,124,0.25)",
+    }}>
+      <div style={{ fontSize: 13, color: T.color.charcoal, fontWeight: 700, flex: 1 }}>
+        {message}
+      </div>
+      <button onClick={onDismiss} aria-label="Dismiss" style={{
+        background: "none", border: "none", cursor: "pointer",
+        minWidth: 44, minHeight: 44,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 20, fontWeight: 800, color: T.color.charcoalMuted,
+        flexShrink: 0,
+      }}>×</button>
+    </div>
+  );
+}
+
 function AppRoutes() {
-  const { firebaseUser, authLoading, progress } = useUser();
+  const { firebaseUser, authLoading, progress, syncError, clearSyncError } = useUser();
   const authed = !!firebaseUser;
   const started = progress?.programmeStarted;
 
@@ -37,6 +63,8 @@ function AppRoutes() {
   }
 
   return (
+    <>
+    {authed && syncError && <SyncErrorBanner message={syncError} onDismiss={clearSyncError} />}
     <Routes>
       <Route path="/dev" element={<DevSeed />} />
 
@@ -55,6 +83,7 @@ function AppRoutes() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }
 

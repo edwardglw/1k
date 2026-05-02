@@ -55,7 +55,8 @@ export default function SignIn() {
         <div style={{ paddingTop: 20, marginBottom: 8 }}>
           <button
             onClick={() => navigate("/")}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: "8px 0", display: "flex", alignItems: "center", gap: 6 }}>
+            aria-label="Back"
+            style={{ background: "none", border: "none", cursor: "pointer", padding: "8px 0", minHeight: 44, display: "flex", alignItems: "center", gap: 6 }}>
             <Icon type="chevronL" size={16} color={T.color.charcoalMuted} />
             <span style={{ fontSize: 13, fontWeight: 600, color: T.color.charcoalMuted }}>Back</span>
           </button>
@@ -168,10 +169,11 @@ function GoogleIcon() {
 }
 
 const inputStyle = {
-  width: "100%", padding: "13px 14px", borderRadius: T.radius.lg,
+  width: "100%", padding: "14px", borderRadius: T.radius.lg,
   border: `1.5px solid ${T.color.ivoryDark}`,
   background: T.color.white, fontSize: 15, fontFamily: "inherit",
   color: T.color.charcoal, outline: "none", boxSizing: "border-box",
+  minHeight: 44,
 };
 
 function friendlyError(code) {
@@ -182,6 +184,8 @@ function friendlyError(code) {
       return "Email or password is incorrect.";
     case "auth/too-many-requests":
       return "Too many attempts. Please wait a moment and try again.";
+    case "auth/popup-blocked":
+      return "Your browser blocked the sign-in popup. Please allow popups for this site, or sign in with email.";
     case "auth/network-request-failed":
       return "No internet connection. Please check and try again.";
     default:

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "WebFetch(domain:1k-beta.vercel.app)",
+      "Bash(ffmpeg -version)"
+    ]
+  }
+}

@@ -1,0 +1,2 @@
+ To deploy as the true homepage you'd either rename it to replace index.html (and move the React app to a sub-path) or
+  configure Vercel to serve landing.html at / and the React app at /app.

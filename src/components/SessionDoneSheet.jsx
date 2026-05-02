@@ -1,8 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { T } from "../tokens";
 import Icon from "./ui/Icon";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 export default function SessionDoneSheet({ session, weekNum, onConfirm, onDismiss }) {
+  const sheetRef = useRef(null);
+  useFocusTrap(sheetRef);
+
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onDismiss(); };
     document.addEventListener("keydown", handler);
@@ -22,7 +26,12 @@ export default function SessionDoneSheet({ session, weekNum, onConfirm, onDismis
           fontFamily: T.font.body,
         }}
       />
-      <div style={{
+      <div
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Mark ${session.name} as done`}
+        style={{
         position: "fixed", bottom: 0, left: 0, right: 0,
         maxWidth: 430, margin: "0 auto",
         background: T.color.white,

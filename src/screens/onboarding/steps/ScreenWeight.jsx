@@ -56,16 +56,18 @@ export default function ScreenWeight({ data, setData }) {
         Small, steady progress is the goal. Be kind to yourself. Both fields are optional — skip if you'd rather not track weight.
       </div>
 
-      <div style={{ marginBottom: 14 }}>
+      <div style={{ marginBottom: data.weight ? 14 : 16 }}>
         <Select label="Current weight (optional)" value={data.weight} onChange={(v) => setData({ ...data, weight: v })}
           options={buildWeightOptions()} placeholder="Select your weight" />
       </div>
-      <div style={{ marginBottom: 16 }}>
-        <Select label="In 6 weeks, I'd like to…" value={data.targetWeight} onChange={(v) => setData({ ...data, targetWeight: v })}
-          options={TARGET_OPTIONS} placeholder="Choose a goal" />
-      </div>
+      {data.weight && (
+        <div style={{ marginBottom: 16 }}>
+          <Select label="In 6 weeks, I'd like to…" value={data.targetWeight} onChange={(v) => setData({ ...data, targetWeight: v })}
+            options={TARGET_OPTIONS} placeholder="Choose a goal" />
+        </div>
+      )}
 
-      {!hasTarget && (
+      {data.weight && !hasTarget && (
         <HighlightMessage tone="sage"
           title="What's realistic?"
           body="Most people can healthily lose 0.5–1 kg per week. A 2–3 kg goal over 6 weeks is a great place to start. You can adjust this any time." />

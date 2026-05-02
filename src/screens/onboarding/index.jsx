@@ -47,7 +47,7 @@ export default function Onboarding() {
       case 0: return !!data.ambition;
       case 1: return !!data.activity;
       case 2: return !!data.displayName && !!data.age && !!data.gender && !!data.height;
-      case 3: return isUnder18 || !data.weight || data.targetWeight !== "";
+      case 3: return true; // weight + targetWeight both optional
       case 4: return data.injuries.length > 0;
       case 5: return true;
       default: return false;
@@ -119,7 +119,7 @@ export default function Onboarding() {
       <div style={{ maxWidth: 430, margin: "0 auto", display: "flex", flexDirection: "column", minHeight: "100vh", position: "relative", zIndex: 1 }}>
 
         <div style={{ padding: "16px 20px 0", display: "flex", alignItems: "center", gap: 12, position: "relative", zIndex: 1 }}>
-          <button onClick={prev} aria-label="Back" style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex" }}>
+          <button onClick={prev} aria-label="Back" style={{ background: "none", border: "none", cursor: "pointer", padding: 4, minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Icon type="chevronL" size={22} color={navIconCol} />
           </button>
           <div style={{ flex: 1 }}>

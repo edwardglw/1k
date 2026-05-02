@@ -14,8 +14,12 @@ export default function ScreenWelcome({ onNext, onOpenModal }) {
         <Icon type="leaf" size={34} color={T.color.white} strokeWidth={2.2} />
       </div>
 
-      <div style={{ fontSize: 44, fontWeight: 900, color: T.color.charcoal, fontFamily: T.font.display, lineHeight: 0.95, letterSpacing: -1.2 }}>
-        1RUN.UK
+      <div style={{
+        display: "inline-flex", alignItems: "baseline", justifyContent: "center", gap: 0,
+        fontFamily: T.font.display, fontWeight: 900, lineHeight: 1,
+      }}>
+        <span style={{ fontSize: 48, color: T.color.charcoal, letterSpacing: -2 }}>1RUN</span>
+        <span style={{ fontSize: 28, color: T.color.sage, letterSpacing: -0.5, marginLeft: 2 }}>.UK</span>
       </div>
       <div style={{ fontSize: 18, fontWeight: 800, color: T.color.moss, fontFamily: T.font.display, lineHeight: 1.25, marginTop: 10, padding: "0 8px" }}>
         Move more. Eat well.<br />Every healthy habit begins somewhere.

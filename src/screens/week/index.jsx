@@ -62,7 +62,6 @@ export default function WeekView() {
   const [earnedBadge, setEarnedBadge] = useState(null);
   const [showFeelingSheet, setShowFeelingSheet] = useState(false);
   const [shareMsg, setShareMsg] = useState(null);
-  const [showWeekLocked, setShowWeekLocked] = useState(false);
 
   const prevWeekComplete = weekNum === 1 || getWeekStatus(weekNum - 1) === "complete";
 
@@ -71,12 +70,11 @@ export default function WeekView() {
       if (e.key !== "Escape") return;
       if (pendingSession) setPendingSession(null);
       else if (pendingUnmark) setPendingUnmark(null);
-      else if (showWeekLocked) setShowWeekLocked(false);
       else if (shareMsg) setShareMsg(null);
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [pendingSession, pendingUnmark, showWeekLocked, shareMsg]);
+  }, [pendingSession, pendingUnmark, shareMsg]);
 
   if (!week) {
     navigate("/dashboard", { replace: true });
@@ -98,6 +96,7 @@ export default function WeekView() {
   const handleFeelingSubmit = (feedback) => {
     applyWeekFeedback(weekNum, feedback);
     setShowFeelingSheet(false);
+    go(navigate, "/dashboard");
   };
 
   const doneSessions = week.sessions.map((_, i) => isSessionDone(weekNum, i));
@@ -145,11 +144,14 @@ export default function WeekView() {
             <Icon type="chevronL" size={18} color={T.color.charcoal} />
           </button>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: T.color.sage, textTransform: "uppercase", letterSpacing: 0.8 }}>
-              {week.phase}
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: T.color.charcoal, fontFamily: T.font.display, lineHeight: 1.1 }}>
-              Week {week.num} — {week.label}
+            <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: T.color.sage, textTransform: "uppercase", letterSpacing: 0.8 }}>
+                {week.phase}
+              </span>
+              <span style={{ fontSize: 13, color: T.color.ivoryDark, fontWeight: 400 }}>|</span>
+              <span style={{ fontSize: 20, fontWeight: 900, color: T.color.charcoal, fontFamily: T.font.display, lineHeight: 1.1 }}>
+                Week {week.num} — {week.label}
+              </span>
             </div>
           </div>
         </div>
@@ -453,27 +455,29 @@ export default function WeekView() {
                 )}
 
                 {/* Mark as done */}
-                {!done && (
-                  <button
-                    onClick={() => {
-                      if (!isNext) return;
-                      prevWeekComplete ? setPendingSession({ sessionIdx: i }) : setShowWeekLocked(true);
-                    }}
-                    style={{
-                      width: "100%", padding: "13px", border: "none", borderRadius: T.radius.lg,
-                      fontSize: 14, fontWeight: 800, fontFamily: T.font.display,
-                      background: isNext && prevWeekComplete
-                        ? `linear-gradient(135deg, ${T.color.moss} 0%, ${T.color.sage} 100%)`
-                        : T.color.ivoryDark,
-                      color: isNext && prevWeekComplete ? T.color.white : T.color.charcoalMuted,
-                      boxShadow: isNext && prevWeekComplete ? `0 4px 16px ${T.color.moss}44` : "none",
-                      cursor: isNext ? "pointer" : "default",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                    }}>
-                    <Icon type="check" size={15} color={isNext && prevWeekComplete ? T.color.white : T.color.charcoalMuted} />
-                    Mark as done
-                  </button>
-                )}
+                {!done && (() => {
+                  const canMark = isNext && prevWeekComplete;
+                  return (
+                    <button
+                      onClick={() => { if (canMark) setPendingSession({ sessionIdx: i }); }}
+                      disabled={!canMark}
+                      style={{
+                        width: "100%", padding: "13px", border: "none", borderRadius: T.radius.lg,
+                        fontSize: 14, fontWeight: 800, fontFamily: T.font.display,
+                        background: canMark
+                          ? `linear-gradient(135deg, ${T.color.moss} 0%, ${T.color.sage} 100%)`
+                          : T.color.ivoryDark,
+                        color: canMark ? T.color.white : T.color.charcoalMuted,
+                        boxShadow: canMark ? `0 4px 16px ${T.color.moss}44` : "none",
+                        cursor: canMark ? "pointer" : "not-allowed",
+                        opacity: canMark ? 1 : 0.4,
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      }}>
+                      <Icon type="check" size={15} color={canMark ? T.color.white : T.color.charcoalMuted} />
+                      Mark as done
+                    </button>
+                  );
+                })()}
               </div>
             );
           })}
@@ -557,58 +561,6 @@ export default function WeekView() {
           weekNum={weekNum}
           onSubmit={handleFeelingSubmit}
         />
-      )}
-
-      {showWeekLocked && (
-        <>
-          <div onClick={() => setShowWeekLocked(false)} style={{
-            position: "fixed", inset: 0,
-            background: "rgba(59,63,58,0.45)", backdropFilter: "blur(4px)",
-            zIndex: 100, animation: "fadeIn 0.2s ease",
-          }} />
-          <div style={{
-            position: "fixed", bottom: 0, left: 0, right: 0,
-            maxWidth: 430, margin: "0 auto",
-            background: T.color.white,
-            borderRadius: `${T.radius.xl}px ${T.radius.xl}px 0 0`,
-            padding: "20px 24px 44px",
-            zIndex: 101, animation: "slideUp 0.3s ease",
-            fontFamily: T.font.body, textAlign: "center",
-          }}>
-            <div style={{ width: 36, height: 4, background: T.color.ivoryTone, borderRadius: 2, margin: "0 auto 22px" }} />
-            <div style={{
-              width: 52, height: 52, borderRadius: T.radius.full, margin: "0 auto 14px",
-              background: T.color.ivoryDark,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <Icon type="chevronL" size={22} color={T.color.charcoalMuted} />
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: T.color.charcoal, fontFamily: T.font.display, marginBottom: 8 }}>
-              Complete Week {weekNum - 1} first
-            </div>
-            <div style={{ fontSize: 14, color: T.color.charcoalMuted, lineHeight: 1.6, marginBottom: 24 }}>
-              Finish all three sessions in Week {weekNum - 1} before moving on.
-            </div>
-            <button
-              onClick={() => { setShowWeekLocked(false); go(navigate, `/week/${weekNum - 1}`); }}
-              style={{
-                width: "100%", padding: "15px", border: "none", borderRadius: T.radius.lg,
-                fontSize: 15, fontWeight: 800, fontFamily: T.font.display,
-                background: `linear-gradient(135deg, ${T.color.moss}, ${T.color.sage})`,
-                color: T.color.white, cursor: "pointer",
-                boxShadow: `0 4px 16px ${T.color.moss}44`, marginBottom: 10,
-              }}>
-              Go to Week {weekNum - 1}
-            </button>
-            <button onClick={() => setShowWeekLocked(false)} style={{
-              width: "100%", padding: "12px", background: "none", border: "none",
-              color: T.color.charcoalMuted, fontSize: 14, fontWeight: 600,
-              cursor: "pointer", fontFamily: T.font.body,
-            }}>
-              Got it
-            </button>
-          </div>
-        </>
       )}
 
       {shareMsg && <ShareSheet message={shareMsg} onClose={() => setShareMsg(null)} />}

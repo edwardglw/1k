@@ -47,7 +47,8 @@ export default function SignUp() {
         <div style={{ paddingTop: 20, marginBottom: 8 }}>
           <button
             onClick={() => navigate(-1)}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: "8px 0", display: "flex", alignItems: "center", gap: 6 }}>
+            aria-label="Back"
+            style={{ background: "none", border: "none", cursor: "pointer", padding: "8px 0", minHeight: 44, display: "flex", alignItems: "center", gap: 6 }}>
             <Icon type="chevronL" size={16} color={T.color.charcoalMuted} />
             <span style={{ fontSize: 13, fontWeight: 600, color: T.color.charcoalMuted }}>Back</span>
           </button>
@@ -133,10 +134,11 @@ export default function SignUp() {
 
 
 const inputStyle = {
-  width: "100%", padding: "13px 14px", borderRadius: T.radius.lg,
+  width: "100%", padding: "14px", borderRadius: T.radius.lg,
   border: `1.5px solid ${T.color.ivoryDark}`,
   background: T.color.white, fontSize: 15, fontFamily: "inherit",
   color: T.color.charcoal, outline: "none", boxSizing: "border-box",
+  minHeight: 44,
 };
 
 const WEAK_PASSWORDS = ["123456", "password", "12345678", "qwerty", "abc123", "111111", "password1", "iloveyou", "123123", "admin"];

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { T } from "../tokens";
 import Icon from "./ui/Icon";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 const APP_URL = "https://1k-beta.vercel.app";
 
@@ -33,6 +34,8 @@ const SOCIAL = [
 
 export default function ShareSheet({ message, onClose }) {
   const [copied, setCopied] = useState(false);
+  const sheetRef = useRef(null);
+  useFocusTrap(sheetRef);
 
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onClose(); };
@@ -51,7 +54,12 @@ export default function ShareSheet({ message, onClose }) {
   return (
     <>
       <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(59,63,58,0.45)", backdropFilter: "blur(4px)", zIndex: 200 }} />
-      <div style={{
+      <div
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Share your progress"
+        style={{
         position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
         width: "100%", maxWidth: 430,
         background: T.color.white, borderRadius: "20px 20px 0 0",

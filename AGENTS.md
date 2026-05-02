@@ -1,4 +1,4 @@
-# 1RUN.UK — Claude Code context
+# 1RUN.UK — Codex context
 
 ## What this is
 A mobile-first React PWA for beginner runners. 6-week walk-to-run programme with integrated weekly eating habits. Target: run a first 1K. Built with Vite + React + React Router. Backend: Firebase (Firestore + Auth). Deployed at https://1k-beta.vercel.app · GitHub: https://github.com/edwardglw/1k

@@ -48,7 +48,7 @@ export default function WeekButton({ num, status, isGoal, isSelected, onClick })
         onClick={onClick}
         aria-label={isGoal ? "Your goal" : `Week ${num}`}
         style={{
-          width: 44, height: 44,
+          width: 36, height: 36,
           borderRadius: T.radius.full,
           background: bg,
           border: `${borderWidth} solid ${border}`,
@@ -61,11 +61,11 @@ export default function WeekButton({ num, status, isGoal, isSelected, onClick })
           boxShadow: shadow,
           animation,
           fontFamily: T.font.display,
-          fontSize: 15,
+          fontSize: 13,
           fontWeight: 900,
         }}
       >
-        {isGoal ? <Icon type="trophy" size={17} color={textColor} /> : num}
+        {isGoal ? <Icon type="trophy" size={14} color={textColor} /> : num}
         {isDone && !isGoal && (
           <div style={{
             position: "absolute", top: -4, right: -4,

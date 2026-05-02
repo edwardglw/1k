@@ -1,11 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { T } from "../tokens";
 import Icon from "./ui/Icon";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 export default function WeightLogSheet({ startWeight, targetWeight, latestWeighIn, onSave, onDismiss }) {
   const placeholder = latestWeighIn ?? startWeight ?? "";
   const [value, setValue] = useState(placeholder ? String(placeholder) : "");
   const [saving, setSaving] = useState(false);
+  const sheetRef = useRef(null);
+  useFocusTrap(sheetRef);
 
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onDismiss(); };
@@ -30,7 +33,12 @@ export default function WeightLogSheet({ startWeight, targetWeight, latestWeighI
           animation: "fadeIn 0.2s ease",
         }}
       />
-      <div style={{
+      <div
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Log your weight"
+        style={{
         position: "fixed", bottom: 0, left: 0, right: 0,
         maxWidth: 430, margin: "0 auto",
         background: T.color.white,

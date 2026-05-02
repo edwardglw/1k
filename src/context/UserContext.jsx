@@ -47,6 +47,7 @@ export const DEFAULT_PROGRESS = {
   weekFeedback: {},
   walkMult: 1.0,
   runMult: 1.0,
+  bannerDismissedAt: null, // ms timestamp; banner re-shows when a badge is earned after this
 };
 
 function calcAllowance(profile) {
@@ -73,6 +74,8 @@ export function UserProvider({ children }) {
   const [firebaseUser, setFirebaseUser] = useState(undefined); // undefined = loading
   const [profile, setProfileRaw] = useState(() => readLocal("fr_profile", DEFAULT_PROFILE));
   const [progress, setProgressRaw] = useState(() => readLocal("fr_progress", DEFAULT_PROGRESS));
+  const [syncError, setSyncError] = useState(null);
+  const clearSyncError = () => setSyncError(null);
 
   // ── Firebase auth listener ──────────────────────────────────────────────
   useEffect(() => {
@@ -109,14 +112,24 @@ export function UserProvider({ children }) {
   useEffect(() => {
     localStorage.setItem("fr_profile", JSON.stringify(profile));
     if (firebaseUser && profile.displayName) {
-      setDoc(doc(db, "users", firebaseUser.uid), { profile }, { merge: true }).catch(() => {});
+      setDoc(doc(db, "users", firebaseUser.uid), { profile }, { merge: true })
+        .then(() => setSyncError(null))
+        .catch((err) => {
+          console.error("Profile sync failed:", err);
+          setSyncError("Couldn't save your changes. Please check your connection.");
+        });
     }
   }, [profile, firebaseUser]);
 
   useEffect(() => {
     localStorage.setItem("fr_progress", JSON.stringify(progress));
     if (firebaseUser && progress.programmeStarted) {
-      setDoc(doc(db, "users", firebaseUser.uid), { progress }, { merge: true }).catch(() => {});
+      setDoc(doc(db, "users", firebaseUser.uid), { progress }, { merge: true })
+        .then(() => setSyncError(null))
+        .catch((err) => {
+          console.error("Progress sync failed:", err);
+          setSyncError("Couldn't save your progress. Please check your connection.");
+        });
     }
   }, [progress, firebaseUser]);
 
@@ -292,6 +305,8 @@ export function UserProvider({ children }) {
       calcAllowance,
       totalSessions,
       sessionsCompleted,
+      syncError,
+      clearSyncError,
     }}>
       {children}
     </UserContext.Provider>
