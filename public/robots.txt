@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /signin
+Disallow: /signup
+Disallow: /onboarding
+Disallow: /dashboard
+Disallow: /week/
+Disallow: /profile
+
+Sitemap: https://1run.uk/sitemap.xml
