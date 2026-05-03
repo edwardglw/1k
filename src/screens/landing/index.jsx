@@ -50,10 +50,10 @@ export default function LandingPage() {
         <div className="lp-hero-overlay" />
 
         <div className="lp-hero-content">
-          <span className="lp-eyebrow">6-week programme · personalised to you</span>
+          <span className="lp-eyebrow">Free beginner running plan · 6 weeks · UK</span>
           <h1 className="lp-headline">Run your first <em>1K.</em></h1>
           <p className="lp-tagline">Move more. Eat well.<br />Every healthy habit begins somewhere.</p>
-          <p className="lp-sub">A gentler start to running and eating well — your programme is built around you, then adapts as you improve.</p>
+          <p className="lp-sub">1RUN.UK is a free beginner running plan for complete beginners. Six weeks of gentle walk-to-run sessions — no experience needed, no pressure, personalised to you.</p>
 
           {/* Benefits card */}
           <button className="lp-benefits-card" onClick={() => setShowBenefits(true)}>
@@ -175,6 +175,55 @@ export default function LandingPage() {
                   <div className="lp-feature-body">{f.body}</div>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section>
+        <div className="lp-section">
+          <p className="lp-section-label">Common questions</p>
+          <h2 className="lp-section-title">Everything you want<br />to know before you start.</h2>
+          <div className="lp-faq">
+            {[
+              {
+                q: "Do I need any running experience?",
+                a: "None at all. 1RUN.UK is designed for complete beginners — people who have never run before, or who haven't run in years. The programme starts with walking and builds up gradually.",
+              },
+              {
+                q: "How fit do I need to be?",
+                a: "Not very. If you can walk for 20 minutes without difficulty, you can start this programme. The first few weeks are mostly walking with short, easy jogs mixed in.",
+              },
+              {
+                q: "How is this different from Couch to 5K?",
+                a: "Couch to 5K is a great programme, but many beginners find it moves too fast. 1RUN.UK sets a smaller first goal — running a full kilometre — so early wins come sooner and the progression feels more manageable. It's also personalised to your fitness level, age, and any injury concerns.",
+              },
+              {
+                q: "How long does it take?",
+                a: "Six weeks, with three sessions per week. Each session takes around 20–30 minutes including warm-up and cool-down. You can move sessions around to fit your schedule.",
+              },
+              {
+                q: "What if I can't run at all yet?",
+                a: "That's exactly who this is for. The first sessions are mostly brisk walking with very short run intervals. Walking is part of the programme, not a sign you're doing it wrong.",
+              },
+              {
+                q: "Is it suitable if I'm over 50 or carrying extra weight?",
+                a: "Yes. The plan adapts to your age and fitness level, and the walk-to-run approach makes it accessible regardless of where you're starting from. If you have any health concerns, check with your GP before starting.",
+              },
+              {
+                q: "Is 1RUN.UK free?",
+                a: "Yes, completely free. Create an account in two minutes and your personalised plan is ready to go.",
+              },
+              {
+                q: "What equipment do I need?",
+                a: "Just a pair of trainers you can run in. You don't need a gym, a heart rate monitor, or any specialist kit to start.",
+              },
+            ].map(({ q, a }) => (
+              <details key={q} className="lp-faq-item">
+                <summary className="lp-faq-q">{q}</summary>
+                <p className="lp-faq-a">{a}</p>
+              </details>
             ))}
           </div>
         </div>
